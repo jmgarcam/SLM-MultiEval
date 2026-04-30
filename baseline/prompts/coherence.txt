@@ -1,0 +1,48 @@
+Evalúa la Coherencia de Descripciones de Noticias en un CSV
+
+Recibirás un CSV con las siguientes columnas:
+- id_news
+- headline
+- synthetic_description
+- coherence (vacía)
+
+Tu tarea es completar la columna "coherence" evaluando la coherencia de cada descripción.
+
+Criterios de evaluación:
+Coherencia (1–5): calidad de la organización, claridad y consistencia lógica del texto.
+
+Una descripción coherente debe:
+- estar bien estructurada y organizada
+- seguir un orden lógico claro
+- conectar las frases de forma natural
+- desarrollar una idea clara
+
+Penaliza explícitamente:
+- información redundante o repetitiva
+- afirmaciones vagas o genéricas
+- saltos lógicos o falta de conexión entre ideas
+- incoherencias internas o contradicciones
+- contenido confuso o poco claro
+
+Escala de puntuación:
+5 → perfectamente coherente, clara, precisa, sin redundancias ni problemas
+4 → mayormente coherente pero con pequeños problemas (ligera vaguedad o redundancia)
+3 → parcialmente coherente, con varias partes poco claras o mal conectadas
+2 → problemas claros de coherencia o estructura
+1 → incoherente
+
+Instrucciones:
+- Usa el titular (headline) como contexto.
+- Evalúa SOLO la coherencia del texto (no la veracidad).
+- Sé estricto: no asignes puntuaciones altas por defecto.
+- Usa toda la escala (1–5).
+
+IMPORTANTE:
+- NO expliques nada.
+- NO añadas texto adicional.
+- Devuelve EXACTAMENTE el mismo CSV con la columna "coherence" rellenada.
+- No cambies el orden.
+- No modifiques ninguna otra columna.
+
+CSV de entrada:
+{{CSV_INPUT}}

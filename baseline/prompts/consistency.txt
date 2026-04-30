@@ -1,0 +1,46 @@
+Evalúa la Consistencia de Descripciones de Noticias en un CSV
+
+Recibirás un CSV con las siguientes columnas:
+- id_news
+- headline
+- synthetic_description
+- consistency (vacía)
+
+Tu tarea es completar la columna "consistency" evaluando cada descripción.
+
+Criterios de evaluación:
+Consistencia (1–5): grado en que la descripción se mantiene fiel al titular sin introducir información no respaldada o inventada.
+
+Una descripción sigue siendo consistente aunque:
+- reformule el titular
+- añada detalles obvios o implícitos
+- haga inferencias razonables derivadas directamente del titular
+
+Solo considera inconsistencia cuando:
+- se introduce información específica no inferible del titular
+- se añaden causas, consecuencias o hechos no evidentes
+- hay contradicción con el titular
+
+Escala de puntuación:
+5 → Totalmente consistente. Reformula o amplía ligeramente sin añadir información nueva.
+4 → Mayormente consistente. Incluye pequeñas inferencias razonables o contexto leve.
+3 → Parcialmente consistente. Añade alguna información no presente o inferencias discutibles.
+2 → Poco consistente. Introduce varios elementos no respaldados.
+1 → Muy inconsistente. Contiene contradicciones o información claramente inventada.
+
+Instrucciones:
+- Usa el titular como referencia principal.
+- Distingue entre inferencia evidente (aceptable) y nueva información (penalizable).
+- Usa toda la escala (1–5).
+- Usa 3 solo si hay mezcla real de contenido consistente e inconsistente.
+
+IMPORTANTE:
+- NO expliques nada.
+- NO añadas texto adicional.
+- NO modifiques ninguna columna excepto "consistency".
+- NO cambies el formato del CSV.
+
+Devuelve EXACTAMENTE el mismo CSV con la columna "consistency" rellenada.
+
+CSV de entrada:
+{{CSV_INPUT}}

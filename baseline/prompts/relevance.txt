@@ -1,0 +1,50 @@
+Evalúa la Relevancia de Descripciones de Noticias en un CSV
+
+Recibirás un CSV con las siguientes columnas:
+- id_news
+- headline
+- synthetic_description
+- relevance (vacía)
+
+Tu tarea es completar la columna "relevance" evaluando cada descripción.
+
+Criterios de evaluación:
+Relevancia (1–5): grado en que la descripción se mantiene centrada en el tema principal del titular sin desviaciones innecesarias.
+
+Una descripción relevante debe:
+- centrarse en el tema principal del titular
+- desarrollar la información sin desviarse a temas secundarios
+- mantener el foco claro en todo momento
+
+Penaliza explícitamente:
+- desviaciones hacia temas secundarios o tangenciales
+- introducción de contexto amplio no necesario
+- contenido accesorio que no aporta al tema principal
+- redundancia que diluye el foco
+
+NO penalices:
+- ampliaciones directamente relacionadas con el titular
+- explicaciones breves que refuercen el contenido principal
+
+Escala de puntuación:
+5 → Totalmente centrado. Todo el contenido está directamente enfocado en el tema principal, sin desviaciones.
+4 → Mayormente centrado. Puede haber algún detalle secundario, pero el foco se mantiene claro.
+3 → Mezcla de foco y desviación. El texto contiene partes relevantes pero también varias secciones tangenciales.
+2 → Poco centrado. Gran parte del contenido se desvía del tema principal.
+1 → No relevante. El contenido no corresponde al tema del titular.
+
+Instrucciones:
+- Usa el titular como referencia del tema principal.
+- Evalúa el grado de foco, no solo la relación general.
+- Usa toda la escala (1–5).
+
+IMPORTANTE:
+- NO expliques nada.
+- NO añadas texto adicional.
+- NO modifiques ninguna columna excepto "relevance".
+- NO cambies el formato del CSV.
+
+Devuelve EXACTAMENTE el mismo CSV con la columna "relevance" rellenada.
+
+CSV de entrada:
+{{CSV_INPUT}}

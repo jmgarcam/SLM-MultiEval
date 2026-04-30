@@ -1,0 +1,917 @@
+{
+  "Newspaper A": [
+    {
+      "id_news": "690345c5f4fd48db285cc2a0",
+      "headline": "Maz�n, tras ser increpado en el funeral de la dana, anuncia que en los pr�ximos d�as har� \"una reflexi�n m�s profunda\"",
+      "synthetic_description": "El presidente de la Generalitat anuncia una \"comparecencia en los pr�ximos d�as\": \"Me hago cargo del d�a de ayer y no dejo de pensar en ello\"",
+      "timestamp": "1769451484",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902cbc0f4fd48db285cbf00",
+      "headline": "Alejo Miranda, el experimentado interrogador del PP, con pasado en el Zendal, elegido para la \"ofensiva total\" contra S�nchez",
+      "synthetic_description": "Los sobres, la financiaci�n, �balos, Cerd�n, Koldo y Bego�a G�mez, en el foco del Partido Popular",
+      "timestamp": "1769448107",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690f29832bc2f7fae35af801",
+      "headline": "G�nova advierte al PP valenciano de que \"supervisar�\" el pacto que Vox quiere sellar directamente con el candidato a la Generalitat",
+      "synthetic_description": "El favorito para suceder a Carlos Maz�n como presidente de transici�n, Juanfran P�rez Llorca, no estuvo en la primera reuni�n de Vox con el PP",
+      "timestamp": "1769453729",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901d7def4fd48db285cb760",
+      "headline": "El Gobierno modifica el programa del funeral de la dana: S�nchez y los Reyes saludar�n a algunas v�ctimas en una sala adyacente",
+      "synthetic_description": "Incluye en un nuevo programa el contacto con los familiares de los fallecidos, algo que estaba en el aire por las medidas de seguridad",
+      "timestamp": "1769445210",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68ff7820f162007cf19f23da",
+      "headline": "D�az Ayuso anuncia que los Presupuestos de 2026 recogen un incremento del 17,7% para ayudas a los aut�nomos",
+      "synthetic_description": "El proyecto de ley para el pr�ximo a�o, que se aprueba en Consejo de Gobierno este mi�rcoles, eleva el aumento de estas subvenciones hasta los 37,1 millones",
+      "timestamp": "1769444345",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69048eadf4fd48db285ccbb9",
+      "headline": "Keiko Fujimori anuncia su candidatura por cuarta vez a la Presidencia de Per�",
+      "synthetic_description": "La aspirante presidencial asever� que gobernar� al estilo de su padre para atajar la violencia en el pa�s",
+      "timestamp": "1769448601",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe1443374c08a5c862bcfa",
+      "headline": "Dos detenidos por el robo en el Louvre: uno de ellos trataba de huir a Argelia",
+      "synthetic_description": "Las autoridades contin�an la b�squeda de los otros dos miembros del grupo, mientras expertos en arte alertan sobre el riesgo de que las piezas robadas sean desmanteladas o vendidas en el mercado negro. La prensa inglesa apunta a una posible colaboraci�n de un miembro de la seguridad del museo con los ladrones",
+      "timestamp": "1769443850",
+      "entailment": 2,
+      "contradiction": 1,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690641bbf4fd48db285cd64a",
+      "headline": "El Atl�tico despierta al final y golea a un Sevilla inofensivo",
+      "synthetic_description": "Los rojiblancos aprovecharon el ocaso de la segunda mitad ante los sevillistas para llevarse un duelo, que fue mucho m�s igualado de lo que dice el marcador",
+      "timestamp": "1769452126",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6908a878f4fd48db285ce548",
+      "headline": "Maribel Vilaplana revela que habl� con Maz�n la noche de la dana: \"Me dijo 'esto es muy gordo, muy grave' y que no supo nada durante la comida\"",
+      "synthetic_description": "La periodista se reafirma en que el presidente no se mostr� preocupado, que atendi� llamadas que no le coment� y no oy� \"palabras como dana, cecopi o lluvias\". Maz�n firm� algunos documentos en el Ventorro y que la acompa�� al parking sin sensaci�n \"de tener prisa\".",
+      "timestamp": "1769452468",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6908b560f4fd48db285ce5af",
+      "headline": "El fiscal que envi� los correos del novio de Ayuso: me dijeron que \"el fiscal general no pod�a esperar\"",
+      "synthetic_description": "Juli�n Salto ha sido el primer testigo en declarar en la vista oral celebrada en el Tribunal Supremo.",
+      "timestamp": "1769447369",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901e80ef4fd48db285cb7e2",
+      "headline": "Tr�fico de drogas y peleas de toxic�manos entre los lujosos pisos del centro de Madrid: \"Nos encontramos desamparados. Hemos visto a familias enteras drog�ndose delante de sus hijos\"",
+      "synthetic_description": "Los vecinos denuncian la pesadilla que supone vivir al lado de un Centro de Adicciones, en el exclusivo barrio de Justicia, donde los usuarios no respetan las normas m�nimas de convivencia y causan molestias",
+      "timestamp": "1769445243",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690b46aef4fd48db285cf79a",
+      "headline": "Marcos V�zquez, creador de Fitness Revolucionario: \"Hoy pensamos m�s como hinchas que como cient�ficos\"",
+      "synthetic_description": "El reconocido divulgador de salud, con m�s de un mill�n de fieles, nos anima a combatir los bulos y la desinformaci�n desarrollando el pensamiento cr�tico.",
+      "timestamp": "1769453024",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6900233af162007cf19f2796",
+      "headline": "Inflaci�n, kirchnerismo y el factor Trump, razones de la sorprendente victoria de Milei y del colapso peronista",
+      "synthetic_description": "Hace meses que el �ndice de precios se mueve en torno al 2%, un 'nirvana' para los argentinos. Tambi�n se reactiv� el instinto de supervivencia tras las �ltimas palabras del estadounidense",
+      "timestamp": "1769450232",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68ff0db6374c08a5c862c25b",
+      "headline": "Los candidatos de Milei hacen una sorprendente elecci�n y ganan con claridad al peronismo",
+      "synthetic_description": "Escrutado el 99% del total de los votos, La Libertad Avanza (LLA) se impuso por 40,74% contra el 31,7% de las diferentes expresiones del peronismo",
+      "timestamp": "1769449680",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68ffb242f162007cf19f2552",
+      "headline": "Podemos pierde ser decisivo en el Congreso pero gana poder ser m�s duro con S�nchez y asfixiar a PSOE y Sumar sin consecuencias",
+      "synthetic_description": "El giro de Junts desactiva el poder de Belarra para tumbar con la derecha iniciativas parlamentarias",
+      "timestamp": "1769446823",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6909b858f4fd48db285cec1f",
+      "headline": "Detienen a la ex jefa jur�dica del ej�rcito israel� que filtr� un v�deo de las torturas de cinco soldados a un preso palestino",
+      "synthetic_description": "El caso, destapado en el verano de 2024, caus� conmoci�n en Israel, pero tambi�n muestras de apoyo a los cinco reservistas",
+      "timestamp": "1769452882",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902986ef4fd48db285cbdd2",
+      "headline": "Indra deber� esperar a la pr�xima junta de accionistas para acometer la renovaci�n parcial de su consejo",
+      "synthetic_description": "Se espera que al menos dos consejeras independientes salgan de la compa��a tras vencer su mandato para dar entrada a nuevos perfiles",
+      "timestamp": "1769448095",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690d517af4fd48db285d058c",
+      "headline": "Cristina Ag��, de agente inmobiliaria a descubrir el verdadero lujo en la belleza: \"Cuidarse no es vanidad, es salud\"",
+      "synthetic_description": "Invertir en cuidado personal se ha convertido en la mayor experiencia de bienestar para esta inquieta empresaria. \"Queremos vernos bien y sentirnos mejor\".",
+      "timestamp": "1769453445",
+      "entailment": 1,
+      "contradiction": 0,
+      "no_neutral": 2
+    },
+    {
+      "id_news": "6911ba9c2bc2f7fae35b0721",
+      "headline": "El vocal del CGPJ que present� su dimisi�n a Perell� quiere ahora integrar la Comisi�n de Escuela Judicial",
+      "synthetic_description": "Jos� Mar�a Fern�ndez Seijo, del sector progresista, ha hecho esta nueva petici�n a la presidenta, que es quien tiene la potestad para aceptar o rechazar su renuncia al cargo",
+      "timestamp": "1769449843",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6903657cf4fd48db285cc3da",
+      "headline": "Las el�ctricas piden oficialmente al Gobierno extender Almaraz hasta junio de 2030 tras m�s de un a�o de pulso",
+      "synthetic_description": "Iberdrola, Endesa y Naturgy han activado el tr�mite legal para ampliar la vida de la central tres a�os m�s de lo previsto. La decisi�n final le corresponde a Moncloa",
+      "timestamp": "1769448320",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690263abf4fd48db285cbc93",
+      "headline": "La Reserva Federal baja los tipos otro cuarto de punto priorizando el empleo a la inflaci�n",
+      "synthetic_description": "El Banco Central estadounidense insiste en que \"la incertidumbre sobre las perspectivas econ�micas sigue siendo elevada\" y que \"los riesgos afectan a ambos lados de su doble mandato\"",
+      "timestamp": "1769448055",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6908d1aaf4fd48db285ce677",
+      "headline": "Feij�o, en un Comit� Ejecutivo sin 10 de los 11 barones,  apoya la decisi�n de Maz�n y pide a Vox que \"facilite cuanto antes\" la elecci�n de un nuevo 'president'",
+      "synthetic_description": "Denuncia que el alicantino \"ha sufrido una cacer�a pol�tica y personal\" y sostiene que la direcci�n nacional \"no dejar� solo\" al PP valenciano",
+      "timestamp": "1769447434",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68ff4fcc374c08a5c862c40d",
+      "headline": "Puigdemont traslada a la Ejecutiva de Junts su voluntad de \"romper\" con S�nchez",
+      "synthetic_description": "La direcci�n de la formaci�n neoconvergente en Perpi��n discute los t�rminos exactos del divorcio con el PSOE y su alcance",
+      "timestamp": "1769449831",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69011963f4fd48db285cb2eb",
+      "headline": "La fuerza del hurac�n Melissa, \"la mayor tormenta del siglo\", desv�a los ataques de Trump al Pac�fico",
+      "synthetic_description": "Al menos 14 muertos en tres ataques contra cuatro narcolanchas el lunes, seg�n ha confirmado Pete Hegseth, secretario de Guerra",
+      "timestamp": "1769444993",
+      "entailment": 1,
+      "contradiction": 1,
+      "no_neutral": 2
+    },
+    {
+      "id_news": "69034a21f4fd48db285cc2c6",
+      "headline": "Rob Jetten, la gran sorpresa de las elecciones en Pa�ses Bajos y que apunta a primer ministro",
+      "synthetic_description": "Este joven liberal progresista neerland�s, de 38 a�os, destaca por su estilo sereno y un discurso que reivindica la pol�tica del optimismo frente al populismo",
+      "timestamp": "1769448257",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6902cbc0f4fd48db285cbf01",
+      "headline": "Los 55 minutos de pesadilla para Maz�n entre insultos y reproches de las v�ctimas: \"Vete a la jueza, cobarde. Aqu� no te queremos\"",
+      "synthetic_description": "El presidente fue recibido y despedido con gritos de 'Maz�n, dimisi�n'. Vivi� el acto en tercera fila, sin contacto con los familiares y junto a Garc�a-Page. No se salud� con N��ez Feij�o",
+      "timestamp": "1769451278",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe7f61374c08a5c862bf5e",
+      "headline": "Tavares 'despide' a Bruno Fernando y el Real Madrid hace historia con 34 victorias seguidas",
+      "synthetic_description": "Los blancos encadenan 34 triunfos consecutivos en ACB el Palacio tras doblegar al Manresa, el �ltimo que le gan�. El angole�o firma por el Partizan y Tavares deja una tarde para el recuerdo: 16 puntos, 14 rebotes, cinco tapones y 10 tiros libres sin fallo",
+      "timestamp": "1769446292",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690b3960f4fd48db285cf722",
+      "headline": "El nuevo disco de Rosal�a, 'Lux', se filtra completo en internet dos d�as antes de su publicaci�n",
+      "synthetic_description": "Este martes, el segundo tema del �lbum, Reliquia, estuvo disponible durante unos minutos en Spotify. Este mi�rcoles, el disco entero circula por Telegram",
+      "timestamp": "1769448201",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902cbc0f4fd48db285cbf03",
+      "headline": "Tres de los menores de la nueva manada de Pamplona ten�an orden de expulsi�n",
+      "synthetic_description": "Existe un expediente en tr�mite para que abandonen el pa�s por su situaci�n irregular. Los cuatro arrestados, de origen magreb�, viven en una zona de tiendas de campa�a ubicadas junto al r�o",
+      "timestamp": "1769448118",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6908741cf4fd48db285ce345",
+      "headline": "Una mujer de 47 a�os es asesinada en Moguer (Huelva) y su ex pareja es detenida como presunto autor del crimen machista",
+      "synthetic_description": "La hija de la v�ctima hab�a informado de que arrestado, de 56 a�os amenaz� a su madre despu�s de que �sta le anunciara que iba a casarse con otra persona",
+      "timestamp": "1769447236",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6903fd44f4fd48db285cc819",
+      "headline": "Yusta, Busquets, Jaime Fern�ndez... los anotadores espa�oles alzan la voz",
+      "synthetic_description": "Cinco espa�oles destacan entre los m�ximos artilleros de la ACB, algo in�dito. Yusta, el �nico del Eurobasket que podr�a llamar Chus Mateo para las pr�ximas Ventanas de la selecci�n, promedia 17 puntos con el Zaragoza",
+      "timestamp": "1769451709",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6903540cf4fd48db285cc336",
+      "headline": "Yolanda D�az se lanza contra la banca: \"Sabemos que invierten en el negocio de la guerra y actividades que vulneran los derechos humanos\"",
+      "synthetic_description": "Se�ala directamente a BBVA y Santander, y admite que ha tenido una \"fuerte disputa\" con el Ministerio de Econom�a por el Real decreto-ley que ha preparado para \"fomentar la banca �tica\" con subvenciones",
+      "timestamp": "1769448272",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902cbc0f4fd48db285cbf0e",
+      "headline": "El Gobierno dedica el 25% de los fondos europeos a \"gasto corriente\" mientras baja la productividad en Espa�a",
+      "synthetic_description": "La Autoridad Fiscal ve retraso en la ejecuci�n y el INE certifica que la productividad no sube ni con con el man� comunitario",
+      "timestamp": "1769448166",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6903a2a2f4fd48db285cc5d1",
+      "headline": "La nueva pel�cula de Woody Allen incluir� el nombre de 'Madrid', se rodar� en la capital y la Comunidad la patrocinar� por 1,5 millones",
+      "synthetic_description": "El contrato para la producci�n del largometraje, denominada provisionalmente 'WASP 2026', tiene un plazo de duraci�n de 26 meses",
+      "timestamp": "1769448400",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6905eaa9f4fd48db285cd457",
+      "headline": "Miles de personas protestan en Serbia contra el Gobierno cuando se cumple un a�o del accidente de Novi Sad en el que murieron 16 personas",
+      "synthetic_description": "La tragedia ocurri� el 1 de noviembre de 2024 cuando un tejado de cemento de la estaci�n se desplom� sobre los pasajeros cerca del mediod�a.",
+      "timestamp": "1769452031",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6907a047f4fd48db285cde5b",
+      "headline": "Horror en el tren tras Halloween: la Polic�a no ve indicios de que el apu�alamiento en masa en un tren brit�nico sea un atentado",
+      "synthetic_description": "Uno de los detenidos ha sido puesto en libertad esta tarde. El otro, tambi�n de nacionalidad brit�nica, ha sido acusado de asesinato en grado de tentativa",
+      "timestamp": "1769447031",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 2
+    },
+    {
+      "id_news": "69030543f4fd48db285cc07f",
+      "headline": "Puigdemont quiere mantener a los altos cargos de Junts enchufados con el PSOE en empresas estatales",
+      "synthetic_description": "\"Fren� en seco\" a los miembros de la direcci�n que pregutaron si dimitir�an tras la ruptura con el Gobierno. En 2022, el partido perdi� 118 altos cargos tras salir del Govern que compart�a con ERC",
+      "timestamp": "1769448197",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69077a22f4fd48db285cdd6d",
+      "headline": "Purga en la revoluci�n cubana: piden cadena perpetua por espionaje para el 'zar de la Econom�a', Alejandro Gil",
+      "synthetic_description": "La fiscal�a a�ade cargos contra �l como malversaci�n, cohecho o evasi�n fiscal. Cay� en desgracia el a�o pasado",
+      "timestamp": "1769446917",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690bf42ef4fd48db285cfc8e",
+      "headline": "C�mo puede afectar la victoria de Zohran Mamdani a la 'revoluci�n Trump'",
+      "synthetic_description": "El joven candidato socialista arrasa en las elecciones a la Alcald�a de Nueva York en una gran noche para el Partido Dem�crata en todo el pa�s",
+      "timestamp": "1769453142",
+      "entailment": 2,
+      "contradiction": 1,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "691116e72bc2f7fae35b0349",
+      "headline": "Katy Perry y su concierto de videojuego: acrobacias, l�seres y diversi�n posadolescente",
+      "synthetic_description": "La cantante demuestra por qu� fue una de las divas millennials con un show cibern�tico de gran efectismo visual en un Palau Sant Jordi con entradas agotadas",
+      "timestamp": "1769449680",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690728baf4fd48db285cdbaa",
+      "headline": "Detienen a dos personas por robar un beb� en Navalmoral de la Mata (C�ceres)",
+      "synthetic_description": "La autora material aprovech� para llevarse al beb� cuando la madre se ausent� un momento del establecimiento donde se encontraban",
+      "timestamp": "1769446842",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690b6457f4fd48db285cf86f",
+      "headline": "La jueza de la dana cita a P�rez Llorca, a los altos cargos del c�rculo m�s cercano a Maz�n y al due�o de El Ventorro",
+      "synthetic_description": "La magistrada Ruiz Tobarra considera que sus testimonio puede \"esclarecer el proceso de deliberaci�n que se sigui� en la reuni�n del Cecopi\" por las llamadas que cruzaron con el presidente y Pradas",
+      "timestamp": "1769453049",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6904d625f4fd48db285cce12",
+      "headline": "Merece la pena ir a Gaman en La Guindalera",
+      "synthetic_description": "En el restaurante nikkei de Luis Ar�valo se come muy bien. Pagamos 80 euros, pero todo estaba rico",
+      "timestamp": "1769451984",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69049810f4fd48db285ccc08",
+      "headline": "Andr�s de Inglaterra ya no tiene ning�n t�tulo nobiliario",
+      "synthetic_description": "Esos nombramientos no desaparecen, ya que eso exigir�a una ley del Parlamento, y podr�n ser heredados por otros cuando fallezca",
+      "timestamp": "1769446208",
+      "entailment": 2,
+      "contradiction": 1,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fecef7374c08a5c862c109",
+      "headline": "Almeida arremete contra la tasa de basuras y la tilda de una \"gran mentira\" del Gobierno de S�nchez",
+      "synthetic_description": "El tributo se ha impuesto bajo el principio de �quien contamina, paga�.",
+      "timestamp": "1769446404",
+      "entailment": 1,
+      "contradiction": 1,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe6a4f374c08a5c862beeb",
+      "headline": "Todo lo que pas� en el Madrid-Bar�a: revisiones del VAR, el gigantesco enfado de Vinicius con Xabi Alonso, la tangana final con Lamine Yamal...",
+      "synthetic_description": "\"Lo hablaremos dentro del vestuario\", dijo el tolosarra sobre los aspavientos del brasile�o, que no le dio la mano y se fue directo a vestuarios. Pelea entre ambos equipos tras el minuto 90 iniciada por Carvajal y Lamine.",
+      "timestamp": "1769443967",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69030feff4fd48db285cc0cd",
+      "headline": "BBVA presenta un beneficio hist�rico de 8.000 millones de euros tras decir adi�s a Sabadell",
+      "synthetic_description": "Sus ganancias crecen un 4,7% hasta septiembre comparado con 2024. Ma�ana arranca la recompra de acciones de 933 millones de euros",
+      "timestamp": "1769448210",
+      "entailment": 2,
+      "contradiction": 1,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902cbc0f4fd48db285cbf06",
+      "headline": "Puigdemont quiere mantener a los altos cargos de Junts en empresas estatales enchufados con el PSOE",
+      "synthetic_description": "\"Fren� en seco\" a los miembros de la direcci�n que pregutaron si dimitir�an tras la ruptura con el Gobierno. En 2022, el partido perdi� 118 altos cargos tras salir del Govern que compart�a con ERC",
+      "timestamp": "1769448121",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690bf42ef4fd48db285cfc8b",
+      "headline": "Y el \"bulo\" mut� en \"exclusiva\"",
+      "synthetic_description": "Seis periodistas comparecieron tras el prudente Lobato y la amn�sica S�nchez Acera. Hubo un dilema moral, un alegato interrumpido y una hermosa mutaci�n en la defensa",
+      "timestamp": "1769453132",
+      "entailment": 1,
+      "contradiction": 0,
+      "no_neutral": 3
+    },
+    {
+      "id_news": "690209edf4fd48db285cb99b",
+      "headline": "Los fabricantes europeos de autom�viles avisan de \"paradas inminentes\" de sus l�neas de montaje por el \"bloqueo en el suministro de microchips\"",
+      "synthetic_description": "El origen est� en la prohibici�n de las exportaciones de chips de Nexperia, medida que tom� China como respuesta a la decisi�n de Pa�ses Bajos de intervenir la filiar neerlandesa tras las presiones de Trump",
+      "timestamp": "1769450970",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    }
+  ],
+  "Newspaper B": [
+    {
+      "id_news": "690243daf4fd48db285cbb7b",
+      "headline": "Primer aniversario de la dana, en directo | Los Reyes presiden el homenaje a las v�ctimas de la dana, al que ya ha llegado Maz�n",
+      "synthetic_description": "Cientos de personas recrean el recorrido del presidente de la Generalitat el d�a de la dana desde El Ventorro al Palau | �Mientras �l com�a, la gente se ahogaba�, denuncian los manifestantes | Maz�n: �Tratamos de hacer lo mejor, pero en muchos casos no fue suficiente�",
+      "timestamp": "1769432235",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6902f14bf4fd48db285cbfef",
+      "headline": "�Cu�nto hay de suerte en el �xito?",
+      "synthetic_description": "Detr�s de cada historia exitosa, hay poco de azar y mucho de pr�ctica y saber aprovechar las oportunidades. Estos son los tres factores de los que dependen los golpes de suerte",
+      "timestamp": "1769433014",
+      "entailment": 2,
+      "contradiction": 1,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6900fe10f4fd48db285cb220",
+      "headline": "Al menos 56 muertos y decenas de detenidos en una megaoperaci�n contra el crimen organizado en R�o de Janeiro",
+      "synthetic_description": "El gobernador afirma que �es una guerra que nada tiene que ver con la seguridad urbana� y pide ayuda a las Fuerzas Armadas",
+      "timestamp": "1769430163",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69006b5ef162007cf19f293f",
+      "headline": "La ONU estima una ca�da del 10% de las emisiones para 2035, lejos de lo necesario para controlar el calentamiento",
+      "synthetic_description": "La mayor�a de pa�ses ha incumplido los plazos para presentar sus nuevos compromisos de reducci�n de sus gases de efecto invernadero",
+      "timestamp": "1769429271",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69007811f4fd48db285cae52",
+      "headline": "El Gobierno conf�a en que la ruptura con Junts no sea definitiva y ve alejarse la moci�n de censura",
+      "synthetic_description": "�Es m�s importante lo que no dice Puigdemont que lo que dice�, resume un dirigente",
+      "timestamp": "1769430264",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe591a374c08a5c862be82",
+      "headline": "Real Madrid - FC Barcelona en directo| El Real Madrid se impone al Barcelona y agranda su distancia en LaLiga",
+      "synthetic_description": "Mbapp� marc� el primer gol del partido tras un gran pase entre l�neas de Bellingham| Ferm�n hizo el tanto del Bar�a y el ingl�s volvi� a adelantar al Madrid",
+      "timestamp": "1769427532",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6902f14bf4fd48db285cbfd1",
+      "headline": "El Roto: seguir� la destrucci�n",
+      "synthetic_description": "Vi�eta del 30 de octubre de 2025",
+      "timestamp": "1769431981",
+      "entailment": 1,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901eef2f4fd48db285cb81b",
+      "headline": "Evita que las hormigas invadan tu cocina o cajones con estas trampas de Amazon",
+      "synthetic_description": "Descubre cuatro soluciones efectivas y f�ciles de usar para mantener tu hogar libre de hormigas",
+      "timestamp": "1769430975",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "690443b1f4fd48db285cc981",
+      "headline": "�Cu�l de los dos?",
+      "synthetic_description": "Fue ella quien le propuso que telefoneara al supuesto difunto para salir de dudas",
+      "timestamp": "1769433057",
+      "entailment": 0,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901d3cbf4fd48db285cb740",
+      "headline": "Un centenar de muertos, entre ellos 35 ni�os, por los bombardeos de Israel en Gaza",
+      "synthetic_description": "Trump asegura que la tregua no est� en riesgo y que el ej�rcito israel� tiene derecho a tomar represalias. El Gobierno de Netanyahu anuncia que �vuelve a aplicar� el alto el fuego",
+      "timestamp": "1769430814",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fdab6e374c08a5c862ba93",
+      "headline": "El cr�ter del suicidio tras el �bullying�: una menor muerta en Sevilla, padres destrozados, chicas hostigadas, alumnos y profesores en �shock�",
+      "synthetic_description": "La mala gesti�n de un caso de acoso escolar por parte del colegio concertado Irlandesas de Loreto dinamita la convivencia en el centro y la vida del barrio",
+      "timestamp": "1769427250",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68ff22da374c08a5c862c2de",
+      "headline": "�ngel Rup�rez: �Me he preguntado m�s de una vez por qu� no veo series�",
+      "synthetic_description": "El poeta y cr�tico publica novela: �Esencial Azar�, una historia sobre las coincidencias y el destino",
+      "timestamp": "1769428392",
+      "entailment": 1,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901311bf4fd48db285cb386",
+      "headline": "Alcaraz se lleva un revolc�n ante Norrie en la trampa de La D�fense",
+      "synthetic_description": "El n�mero uno cede en el estreno ante el brit�nico tras una actuaci�n muy err�tica: 4-6, 6-3 y 6-4, en 2h 22m. En el caso de que Sinner triunfe, le arrebatar� el trono",
+      "timestamp": "1769431374",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6902f14bf4fd48db285cbfe2",
+      "headline": "El adi�s de Thomas Pynchon, esquivo cronista de un EE UU lanzado en picado hacia su autodestrucci�n",
+      "synthetic_description": "El gran escritor de culto estadounidense vuelve a los 88 a�os y tras 12 a�os de silencio con �Shadow Ticket�, donde caben Hitler, Mussolini, Franco y Primo de Rivera",
+      "timestamp": "1769432054",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68fefda7374c08a5c862c1f2",
+      "headline": "Pellegrini-Simeone, toda una eternidad en la Liga",
+      "synthetic_description": "Colisionan en este Betis-Atl�tico por la Champions los dos t�cnicos con m�s tiempo en los banquillos de la competici�n espa�ola y la renovaci�n del chileno, al que quiere su selecci�n, todav�a sin concretar",
+      "timestamp": "1769427811",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69004e75f162007cf19f2879",
+      "headline": "El 60% del personal sanitario desoye la recomendaci�n de vacunarse frente a la gripe",
+      "synthetic_description": "La campa�a de inmunizaci�n frente a los virus respiratorios tropieza con la escasa implicaci�n de los profesionales y las disparidades del calendario entre comunidades",
+      "timestamp": "1769428982",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901c051f4fd48db285cb6b8",
+      "headline": "M�s de 90 muertos, entre ellos 24 ni�os, por los bombardeos israel�es en Gaza",
+      "synthetic_description": "Netanyahu orden� el martes al ej�rcito llevar a cabo �ataques contundentes� y de �manera inmediata� sobre la Franja",
+      "timestamp": "1769431379",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690296f8f4fd48db285cbdca",
+      "headline": "Descalabro electoral de la asociaci�n de guardias civiles m�s beligerante con el Gobierno",
+      "synthetic_description": "Jucil pierde, tras sufrir una guerra interna, la mitad de los seis vocales que obtuvo hace cuatro a�os y su gran rival, AUGC, la supera",
+      "timestamp": "1769431802",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68fdf38a374c08a5c862bc40",
+      "headline": "Sergio Ram�rez gana la VI Bienal de Novela Mario Vargas Llosa con �El caballo dorado�",
+      "synthetic_description": "El jurado destaca que la obra vencedora es �un prodigioso artefacto literario, experimental, poli�drico y calidosc�pico, donde realidad y ficci�n se confunden�",
+      "timestamp": "1769427359",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901f26ff4fd48db285cb8c1",
+      "headline": "�ltima hora del hurac�n �Melissa�, en directo | �Melissa� provoca inundaciones y crecidas de r�os al este de Cuba y obliga a los primeros rescates en el sur",
+      "synthetic_description": "La Habana ha puesto seis provincias de la isla en alerta y ha evacuado a 735.000 personas | Las autoridades jamaicanas temen que el temporal haya dejado v�ctimas e informan de da�os a hospitales, v�as y casas",
+      "timestamp": "1769431000",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69008c21f4fd48db285caee0",
+      "headline": "Iberdrola gana 5.307 millones hasta septiembre, un 17% m�s",
+      "synthetic_description": "El resultado baja un 3% si se tienen en cuenta las plusval�as de la venta en M�xico de 2024. La energ�tica realiza inversiones r�cord de 9.000 millones",
+      "timestamp": "1769430386",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690149f0f4fd48db285cb404",
+      "headline": "El Real Madrid no espanta los fantasmas a domicilio y se diluye ante el Bayern en la Euroliga",
+      "synthetic_description": "Los de Scariolo siguen sin ganar como visitantes esta temporada. Bar�a, Valencia y Baskonia s� ganan en la s�ptima jornada de la m�xima competici�n continental",
+      "timestamp": "1769430352",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6900a25ff4fd48db285caf85",
+      "headline": "Daniel Ducruet recuerda tres d�cadas despu�s su medi�tica infidelidad a Estefan�a de M�naco: �Fui v�ctima de una trampa�",
+      "synthetic_description": "El primer esposo de la princesa protagoniz� unas comprometidas im�genes en 1996 con una �stripper� belga que le costaron su matrimonio y su reputaci�n. �En aquel momento est�bamos enamorados y no estaba previsto que acabara as�, ha afirmado ahora en una entrevista",
+      "timestamp": "1769429534",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69013853f4fd48db285cb3aa",
+      "headline": "�ltima hora del hurac�n �Melissa�, en directo | El ojo del hurac�n �Melissa� ya ha cruzado Jamaica",
+      "synthetic_description": "Los pron�sticos prev�n que el cicl�n alcance Cuba esta madrugada y las Bahamas el jueves | La Habana ha puesto seis provincias de la isla en alerta | El fen�meno presenta vientos de hasta 295 kil�metros por hora",
+      "timestamp": "1769431101",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690111ebf4fd48db285cb2bf",
+      "headline": "Mar�a Victoria Atencia gana el premio Nacional de las Letras 2025",
+      "synthetic_description": "El galard�n reconoce el conjunto de la trayectoria literaria de la poeta malague�a, de 93 a�os, coet�nea de la generaci�n po�tica de los 50",
+      "timestamp": "1769430964",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69034b52f4fd48db285cc2de",
+      "headline": "�ltima hora de la comparecencia de Pedro S�nchez ante el Senado por el �caso Koldo�, en directo | S�nchez: �Yo con el se�or Aldama no he tenido absolutamente ninguna relaci�n�",
+      "synthetic_description": "El presidente acusa a Feij�o en el Senado de cobrar �sobresueldos�: �Ocult� su sueldo real� | Sobre el PP: �Bajo este Gobierno no hay polic�a patri�tica ni corrupci�n sist�mica�",
+      "timestamp": "1769433542",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901e85af4fd48db285cb7e5",
+      "headline": "La relatora de la ONU para Palestina acusa a comunidad internacional de �complicidad� en la ofensiva israel� en Gaza",
+      "synthetic_description": "Francesca Albanese presenta un nuevo informe en el que denuncia que decenas de pa�ses han prestado a Israel un apoyo que posibilita �un crimen colectivo� y �un genocidio a�n en marcha�",
+      "timestamp": "1769430947",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68fef6da374c08a5c862c1be",
+      "headline": "El juez archiva la �ltima querella pendiente a �Mongolia� por su pol�mica portada del bel�n",
+      "synthetic_description": "La asociaci�n ultra Hazte O�r vuelve a apelar ante la Audiencia de Barcelona por la caracterizaci�n del ni�o Jes�s en una ilustraci�n",
+      "timestamp": "1769428087",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fefda7374c08a5c862c20b",
+      "headline": "Ver�nica Moar, el triunfo de una ceramista gallega en la milenaria cuna de la porcelana china",
+      "synthetic_description": "La artista premiada en China por su vanguardismo reivindica un arte que exige paciencia y resistencia mental y que vive un bum como terapia antiestr�s",
+      "timestamp": "1769428328",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68ff7fa5f162007cf19f240a",
+      "headline": "El juicio al fiscal general: la pareja de Ayuso declarar� el 4 de noviembre y Garc�a Ortiz, el 12",
+      "synthetic_description": "El Supremo rechaza el recurso de Garc�a Ortiz contra la fianza de 75.000 euros que le impuso el juez Hurtado",
+      "timestamp": "1769428800",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68ffcd64f162007cf19f25f6",
+      "headline": "La victoria en el cl�sico refuerza a un Xabi Alonso que afronta el mayor desaf�o de Vinicius a su autoridad",
+      "synthetic_description": "El triunfo blanco impulsa el proyecto del t�cnico, que debe gestionar el desaire m�s grave del brasile�o dentro de un vestuario con m�s de un morro torcido. Carvajal, unos dos meses de baja",
+      "timestamp": "1769429619",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68fdd303374c08a5c862bb98",
+      "headline": "El campe�n de Moto3, Jos� Antonio Rueda, y Dettwiler protagonizan un terrible accidente antes del inicio de la carrera en el GP de Malasia",
+      "synthetic_description": "El piloto espa�ol, que ha sido evacuado en helic�ptero y est� consciente en el hospital, ha embestido por detr�s al suizo en la vuelta de formaci�n en el circuito de Sepang",
+      "timestamp": "1769427347",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe952c374c08a5c862bfc6",
+      "headline": "El Consejo de Ministros aprueba este martes la reforma legal que deja las investigaciones penales en manos de los fiscales",
+      "synthetic_description": "La nueva ley de enjuiciamiento criminal desvincula el mandato del fiscal general de la duraci�n de la legislatura y deja fuera de la acusaci�n popular a los partidos y los sindicatos",
+      "timestamp": "1769428009",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690443b1f4fd48db285cc98b",
+      "headline": "�C�mo volver a realizar ejercicio y no fallar en el intento?",
+      "synthetic_description": "Comenzar a moverse tras a�os de sedentarismo puede parecer abrumador. Es fundamental establecer metas realistas, contar con asesoramiento en la etapa inicial y evitar excederse en la intensidad del ejercicio para evitar lesiones",
+      "timestamp": "1769433105",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68ff8d30f162007cf19f2454",
+      "headline": "EE UU conf�a en que China aplace las restricciones a las tierras raras a pocos d�as de la cumbre entre Trump y Xi",
+      "synthetic_description": "El republicano asegura que podr�a sellar un acuerdo sobre TikTok y que ha obtenido una �aprobaci�n provisional� del l�der chino",
+      "timestamp": "1769428525",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe32b0374c08a5c862bd9b",
+      "headline": "3 �leggings� para mujer de cintura alta ideales para hacer deporte por su elasticidad y transpirabilidad",
+      "synthetic_description": "Con esta selecci�n ya no deber�s preocuparte por la adaptabilidad del tejido o el sudor y podr�s centrarte en los ejercicios de tu rutina",
+      "timestamp": "1769428001",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6900c4d3f4fd48db285cb0a4",
+      "headline": "Los coches de marcas chinas pierden m�s de un 39% de su valor despu�s de tres a�os",
+      "synthetic_description": "Seg�n un estudio de Ganvam-DAT, las firmas de este pa�s se deval�an m�s que el resto de marcas generalistas, algo que se explica en parte por su mayor venta de electrificados",
+      "timestamp": "1769429773",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe1a51374c08a5c862bd21",
+      "headline": "Otras luces de bohemia",
+      "synthetic_description": "Est�n aqu� otra vez aquellos periodistas patibularios de anta�o que han hecho de la comunicaci�n un negocio sucio",
+      "timestamp": "1769427923",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 3
+    },
+    {
+      "id_news": "6900858af4fd48db285caeb0",
+      "headline": "El PSOE entrega al Supremo nueva documentaci�n para justificar los descuadres de dinero en efectivo advertidos por la UCO",
+      "synthetic_description": "El partido env�a al juez las liquidaciones de gastos del equipo de la Secretar�a de Organizaci�n durante las etapas de �balos y Cerd�n y aporta los justificantes de retirada de efectivo de su cuenta oficial por casi un mill�n de euros",
+      "timestamp": "1769430103",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe4c37374c08a5c862be35",
+      "headline": "Real Madrid - FC Barcelona en directo| El Bar�a busca igualar al Madrid en la segunda mitad",
+      "synthetic_description": "Mbapp� marc� el primer gol del partido tras un gran pase entre l�neas de Bellingham| Ferm�n hizo el tanto del Bar�a y el ingl�s volvi� a adelantar al Madrid",
+      "timestamp": "1769427923",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "68fe442f374c08a5c862be02",
+      "headline": "Real Madrid - FC Barcelona en directo|Mbapp� adelanta al Madrid tras un gran pase entre l�neas de Bellingham",
+      "synthetic_description": "El VAR anul� un gol de Mbapp� y un penalti de Lamine a Vinicius | Camavinga y Valverde salieron de inicio en el Madrid y Araujo se cay� del once del Bar�a",
+      "timestamp": "1769427490",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "690133fff4fd48db285cb395",
+      "headline": "Alcaraz cae a la primera en la trampa del Masters de Par�s",
+      "synthetic_description": "El n�mero uno cede en el estreno frente a Norrie tras una actuaci�n muy err�tica: 4-6, 6-3 y 6-4, en 2h 22m. En el caso de que Sinner triunfe, le arrebatar� el trono",
+      "timestamp": "1769431382",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69004e75f162007cf19f2890",
+      "headline": "La victoria judicial de los acreedores de Credit Suisse abre paso a reclamaciones milmillonarias",
+      "synthetic_description": "Los fondos afectados esperan recuperar parte de los 17.000 millones perdidos tras una sentencia que anula la amortizaci�n de deuda convertible, mientras el mercado ya especula con la posible indemnizaci�n",
+      "timestamp": "1769429315",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69004e75f162007cf19f2889",
+      "headline": "La IA cruza la frontera de la intimidad sin que la humanidad haya conseguido entenderla",
+      "synthetic_description": "Los bots de inteligencia artificial pueden aliviar la soledad, pero tambi�n aislar y generar dependencia. OpenAI reconoce millones de consultas sobre suicidios en ChatGPT",
+      "timestamp": "1769429064",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69004e75f162007cf19f289e",
+      "headline": "C�mo la actual etapa asexual de Hollywood puede afectar nuestras fantas�as er�ticas",
+      "synthetic_description": "La ca�da de las escenas subidas de tono en el cine y las series puede dejar a las audiencias sin modelos er�ticos de comportamiento. Entre las causas, el f�cil acceso a la pornograf�a y el encarecimiento de los rodajes con la figura del coordinador de intimidad",
+      "timestamp": "1769429194",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "69012b99f4fd48db285cb359",
+      "headline": "Alcaraz se lleva un revolc�n en la trampa de La D�fense",
+      "synthetic_description": "El n�mero uno cede en el estreno frente a Norrie tras una actuaci�n muy err�tica: 4-6, 6-3 y 6-4, en 2h 22m. En el caso de que Sinner triunfe, le arrebatar� el trono",
+      "timestamp": "1769431050",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "68fefda7374c08a5c862c1f3",
+      "headline": "El eco de quienes nos precedieron",
+      "synthetic_description": "Todos somos en cierta medida la uni�n entre aquellas personas que quisimos y nos precedieron en el mundo, y quienes nos suceder�n",
+      "timestamp": "1769428351",
+      "entailment": 2,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "6900bf56f4fd48db285cb075",
+      "headline": "Jamaica comienza a sentir la inminente llegada del �catastr�fico� hurac�n �Melissa�, que deja ya tres muertos",
+      "synthetic_description": "La isla caribe�a reporta sus primeros da�os de infraestructura a solo horas de que toque tierra el ojo de la que se perfila como la mayor tormenta en la historia del pa�s",
+      "timestamp": "1769429808",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    },
+    {
+      "id_news": "69004e75f162007cf19f2874",
+      "headline": "�Podcast� | De los contratos a las comisiones: claves y costuras del �caso Koldo�",
+      "synthetic_description": "Pedro S�nchez comparecer� en el Supremo el pr�ximo jueves 30 de octubre",
+      "timestamp": "1769428975",
+      "entailment": 0,
+      "contradiction": 2,
+      "no_neutral": 0
+    },
+    {
+      "id_news": "6901a046f4fd48db285cb5d1",
+      "headline": "El Ejecutivo de Maz�n no ha usado a�n el 74% de los 2.364 millones que tiene para reconstruir los destrozos de la dana: �Se trabaja muy lento�",
+      "synthetic_description": "Un a�o despu�s de la tragedia, quedan m�ltiples infraestructuras p�blicas, locales o ascensores por reparar. Pero no todo se arregla con dinero: �Falta la reconstrucci�n humana�, se quejan las v�ctimas",
+      "timestamp": "1769431262",
+      "entailment": 3,
+      "contradiction": 0,
+      "no_neutral": 1
+    }
+  ],
+  "periodico": [
+    {
+      "id_news": "id_news",
+      "headline": "headline",
+      "synthetic_description": "description",
+      "timestamp": "timestamp_llm",
+      "entailment": 0,
+      "contradiction": 0,
+      "no_neutral": 0
+    }
+  ]
+}

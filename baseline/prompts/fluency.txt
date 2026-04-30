@@ -1,0 +1,53 @@
+Evalúa la Fluidez de Descripciones de Noticias en un CSV
+
+Recibirás un CSV con las siguientes columnas:
+- id_news
+- headline
+- synthetic_description
+- fluency (vacía)
+
+Tu tarea es completar la columna "fluency" evaluando cada descripción.
+
+Criterios de evaluación:
+Fluidez (1–5): calidad lingüística del texto, incluyendo gramática, sintaxis y naturalidad. Una descripción fluida debe ser clara, natural y fácil de leer.
+
+Una descripción fluida debe:
+- tener estructuras gramaticales correctas
+- usar puntuación adecuada
+- mantener una sintaxis natural
+- evitar repeticiones innecesarias
+- leerse de forma fluida sin esfuerzo
+
+Penaliza explícitamente:
+- errores gramaticales (concordancia, tiempos verbales, etc.)
+- problemas de puntuación
+- estructuras sintácticas poco naturales
+- repeticiones o redundancias
+- frases largas o confusas
+- construcciones forzadas o poco idiomáticas
+- errores menores que no rompen el texto pero reducen naturalidad
+
+Escala de puntuación:
+5 → Excelente fluidez. Texto completamente natural, sin errores y perfectamente legible.
+4 → Buena fluidez. Texto claro y natural, con pequeños detalles (ligera repetición o estructura mejorable).
+3 → Fluidez aceptable. Algunos problemas (repeticiones, frases poco naturales o leves errores) que afectan la calidad.
+2 → Baja fluidez. Errores frecuentes o estructuras confusas que dificultan la lectura.
+1 → Muy baja fluidez. Texto incorrecto o difícil de entender.
+
+Instrucciones:
+- Evalúa SOLO la calidad lingüística (no contenido ni veracidad).
+- Distingue entre pequeños problemas (4) y problemas moderados (3).
+- Sé estricto: no asignes 5 por defecto.
+- Usa toda la escala (1–5).
+
+IMPORTANTE:
+- NO expliques nada.
+- NO añadas texto adicional.
+- NO modifiques ninguna columna excepto "fluency".
+- NO cambies el formato del CSV.
+- No modifiques comillas, comas ni estructura del CSV.
+
+Devuelve EXACTAMENTE el mismo CSV con la columna "fluency" rellenada.
+
+CSV de entrada:
+{{CSV_INPUT}}
