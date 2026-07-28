@@ -3,7 +3,11 @@ import re
 import sys
 import os
 import spacy
-from scipy.stats import ttest_ind
+import numpy as np
+from math import sqrt
+from statistics import stdev
+from time import perf_counter_ns
+from scipy.stats import t, ttest_ind
 
 # Add project paths
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -20,6 +24,59 @@ INPUT_REAL = "../reales.json"
 NEWSPAPER_A = "NEWSPAPER_A"
 NEWSPAPER_B = "NEWSPAPER_B"
 OUTPUT_DIR = "."
+
+NANOSECONDS_PER_SECOND = 1_000_000_000
+
+
+def summarize_timing_samples(samples_ns):
+    """Calculate total, mean, and two-sided Student 95% CI."""
+    sample_size = len(samples_ns)
+    total_ns = sum(samples_ns)
+    if sample_size == 0:
+        return {
+            "n_news": 0,
+            "total_seconds": 0.0,
+            "mean_seconds_per_news": None,
+            "ci95_seconds_per_news": {"lower": None, "upper": None},
+        }
+
+    mean_ns = total_ns / sample_size
+    if sample_size == 1:
+        interval = {"lower": None, "upper": None}
+    else:
+        standard_error_ns = stdev(samples_ns) / sqrt(sample_size)
+        margin_ns = float(t.ppf(0.975, df=sample_size - 1)) * standard_error_ns
+        interval = {
+            "lower": (mean_ns - margin_ns) / NANOSECONDS_PER_SECOND,
+            "upper": (mean_ns + margin_ns) / NANOSECONDS_PER_SECOND,
+        }
+
+    return {
+        "n_news": sample_size,
+        "total_seconds": total_ns / NANOSECONDS_PER_SECOND,
+        "mean_seconds_per_news": mean_ns / NANOSECONDS_PER_SECOND,
+        "ci95_seconds_per_news": interval,
+    }
+
+
+class MetricTimingCollector:
+    """Time one complete metric call for every processed news item."""
+
+    def __init__(self, clock_ns=perf_counter_ns):
+        self.clock_ns = clock_ns
+        self.samples_ns = []
+
+    def measure(self, calculation, *args, **kwargs):
+        started_ns = self.clock_ns()
+        result = calculation(*args, **kwargs)
+        self.samples_ns.append(self.clock_ns() - started_ns)
+        return result
+
+    def as_dict(self):
+        return {
+            "unit": "seconds",
+            **summarize_timing_samples(self.samples_ns),
+        }
 
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
@@ -68,49 +125,83 @@ def calculate_uer(text):
     return round(unique_entities_count / total_tokens, 4)
 
 
-def process_batch(news_list, text_key):
+def process_batch(news_list, text_key, timing_collector=None):
     """Processes a batch of news and adds UER to each item."""
     for news in news_list:
         raw_text = news.get(text_key, "")
         clean_text = remove_html(raw_text)
-        news["uer"] = calculate_uer(clean_text)
+        if timing_collector is None:
+            news["uer"] = calculate_uer(clean_text)
+        else:
+            news["uer"] = timing_collector.measure(calculate_uer, clean_text)
+
+
+def calculate_mean_and_ci95(values, confidence=0.95, decimals=4):
+    """Calculate mean and two-sided Student 95% CI for valid values."""
+    clean_values = []
+    for value in values:
+        if value is None:
+            continue
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            continue
+        if not np.isnan(numeric_value):
+            clean_values.append(numeric_value)
+
+    if not clean_values:
+        return {
+            "mean": 0.0,
+            "ci95": {"lower": None, "upper": None},
+            "n": 0
+        }
+
+    mean_value = float(np.mean(clean_values))
+    sample_size = len(clean_values)
+    if sample_size < 2:
+        return {
+            "mean": round(mean_value, decimals),
+            "ci95": {"lower": None, "upper": None},
+            "n": sample_size
+        }
+
+    standard_error = np.std(clean_values, ddof=1) / np.sqrt(sample_size)
+    alpha = 1 - confidence
+    margin = t.ppf(1 - alpha / 2, df=sample_size - 1) * standard_error
+    return {
+        "mean": round(mean_value, decimals),
+        "ci95": {
+            "lower": round(mean_value - margin, decimals),
+            "upper": round(mean_value + margin, decimals)
+        },
+        "n": sample_size
+    }
 
 
 def calculate_means(news, results, is_real=False):
     """Calculates mean UER grouped by feature if synthetic."""
-    uer_data = {}
-
     if not is_real:
         for feature in [1, 2, 3]:
-            uer_data[feature] = {'count': 0, 'sum': 0.0}
-
-        for item in news:
-            feature_id = int(item.get('id_feature', -1))
-            if feature_id in uer_data:
-                uer_data[feature_id]['count'] += 1
-                uer_data[feature_id]['sum'] += item['uer']
-
-        for feature in [1, 2, 3]:
-            avg_uer = (
-                uer_data[feature]['sum'] / uer_data[feature]['count']
-                if uer_data[feature]['count'] > 0 else 0.0
+            feature_news = [
+                item for item in news
+                if int(item.get('id_feature', -1)) == feature
+            ]
+            uer_stats = calculate_mean_and_ci95(
+                [item.get('uer', np.nan) for item in feature_news]
             )
 
             results[feature] = {
-                'mean_uer': round(avg_uer, 4),
+                'mean_uer': uer_stats['mean'],
+                'ci95_uer': uer_stats['ci95'],
+                'n_uer': uer_stats['n']
             }
-
     else:
-        uer_data = {'count': 0, 'sum': 0.0}
-
-        for item in news:
-            uer_data['count'] += 1
-            uer_data['sum'] += item['uer']
-
-        results['mean_uer'] = (
-            uer_data['sum'] / uer_data['count']
-            if uer_data['count'] > 0 else 0.0
+        uer_stats = calculate_mean_and_ci95(
+            [item.get('uer', np.nan) for item in news]
         )
+        results['mean_uer'] = uer_stats['mean']
+        results['ci95_uer'] = uer_stats['ci95']
+        results['n_uer'] = uer_stats['n']
 
 
 def calculate_t_student(news_no_rag, news_rag, p_values_dict):
@@ -157,14 +248,22 @@ def initialize_empty_structure(newspaper_list, include_p_values=False):
     return data
 
 
-def save_structured_json(path, means_no_rag, means_rag, means_real, p_values):
+def save_structured_json(
+    path,
+    means_no_rag,
+    means_rag,
+    means_real,
+    p_values,
+    calculation_times
+):
     """Saves final structured UER results to JSON."""
     final_structure = {}
 
     for newspaper in means_no_rag.keys():
         final_structure[newspaper] = {
             "real_reference_metrics": means_real.get(newspaper, {}),
-            "llm_models": {}
+            "llm_models": {},
+            "calculation_times": calculation_times.get(newspaper, {})
         }
 
         for llm_id, features_dict in means_no_rag[newspaper].items():
@@ -184,20 +283,33 @@ def save_structured_json(path, means_no_rag, means_rag, means_real, p_values):
 
 
 ids_to_process = [1, 2, 3]
+newspapers = [NEWSPAPER_A, NEWSPAPER_B]
 
-results_no_rag = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B])
-results_rag = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B])
-p_values_results = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B], include_p_values=True)
+results_no_rag = initialize_empty_structure(newspapers)
+results_rag = initialize_empty_structure(newspapers)
+p_values_results = initialize_empty_structure(newspapers, include_p_values=True)
 
 results_real = {
     NEWSPAPER_A: {'mean_uer': 0},
     NEWSPAPER_B: {'mean_uer': 0}
 }
 
+uer_timers = {
+    newspaper: MetricTimingCollector()
+    for newspaper in newspapers
+}
+
 # --- EXECUTION ---
-for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
+for newspaper in newspapers:
 
     real_news = get_real_news_from_json(INPUT_REAL, newspaper)
+
+    process_batch(real_news, "description", uer_timers[newspaper])
+    calculate_means(
+        real_news,
+        results_real[newspaper],
+        is_real=True
+    )
 
     for llm_id in ids_to_process:
         print(f"Processing: {newspaper}...")
@@ -205,9 +317,8 @@ for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
         synthetic_rag = get_synthetic_news_from_json(INPUT_RAG, newspaper, llm_id)
         synthetic_no_rag = get_synthetic_news_from_json(INPUT_NORAG, newspaper, llm_id)
 
-        process_batch(real_news, "description")
-        process_batch(synthetic_rag, "synthetic_description")
-        process_batch(synthetic_no_rag, "synthetic_description")
+        process_batch(synthetic_rag, "synthetic_description", uer_timers[newspaper])
+        process_batch(synthetic_no_rag, "synthetic_description", uer_timers[newspaper])
 
         calculate_means(
             synthetic_no_rag,
@@ -219,12 +330,6 @@ for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
             synthetic_rag,
             results_rag[newspaper][llm_id],
             is_real=False
-        )
-
-        calculate_means(
-            real_news,
-            results_real[newspaper],
-            is_real=True
         )
 
         calculate_t_student(
@@ -241,5 +346,11 @@ save_structured_json(
     results_no_rag,
     results_rag,
     results_real,
-    p_values_results
+    p_values_results,
+    {
+        newspaper: {
+            "uer": uer_timers[newspaper].as_dict()
+        }
+        for newspaper in newspapers
+    }
 )

@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import t
 
 # =====================================================
 # 1. CONFIGURATION
@@ -31,6 +32,7 @@ PALETTE = {
     "NO RAG": COLOR_NO_RAG,
     "RAG": COLOR_RAG
 }
+HUE_ORDER = ["NO RAG", "RAG"]
 
 # =====================================================
 # 2. DATA LOADING
@@ -41,6 +43,35 @@ def load_data(filepath):
         return {}
     with open(filepath, 'r', encoding='utf-8') as f:
         return json.load(f)
+
+
+def compute_ci95_from_distribution(distribution, sample_size, confidence=0.95, decimals=3):
+    """Rebuilds a 95% CI from score frequencies when the JSON has no ci95 field."""
+    if not distribution or sample_size is None or sample_size < 2:
+        return {"lower": None, "upper": None}
+
+    score_counts = {
+        int(score): int(count)
+        for score, count in distribution.items()
+    }
+    effective_n = sum(score_counts.values())
+
+    if effective_n < 2:
+        return {"lower": None, "upper": None}
+
+    sum_values = sum(score * count for score, count in score_counts.items())
+    sum_sq_values = sum((score ** 2) * count for score, count in score_counts.items())
+    mean_val = sum_values / effective_n
+    variance_numerator = sum_sq_values - effective_n * (mean_val ** 2)
+    sample_variance = max(variance_numerator / (effective_n - 1), 0.0)
+    sem = (sample_variance / effective_n) ** 0.5
+    alpha = 1 - confidence
+    margin = t.ppf(1 - alpha / 2, df=effective_n - 1) * sem
+
+    return {
+        "lower": round(mean_val - margin, decimals),
+        "upper": round(mean_val + margin, decimals)
+    }
 
 # =====================================================
 # 3. PREPARE DATAFRAME (MEAN)
@@ -54,12 +85,20 @@ def prepare_dataframe(rag_data, no_rag_data):
                 model_name = MODEL_NAMES.get(model_id, f"Model {model_id}")
 
                 for temp_id, values in temps.items():
+                    ci_data = values.get("ci95_relevance")
+                    if not ci_data or ci_data.get("lower") is None or ci_data.get("upper") is None:
+                        ci_data = compute_ci95_from_distribution(
+                            values.get("dist", {}),
+                            values.get("samples", 0)
+                        )
                     rows.append({
                         "ModelName": model_name,
                         "TempID": temp_id,
                         "Group": f"{model_id}_{temp_id}",
                         "Configuration": label,
-                        "Value": values["avg_relevance"]
+                        "Value": values["avg_relevance"],
+                        "CILower": ci_data.get("lower"),
+                        "CIUpper": ci_data.get("upper")
                     })
 
     process(rag_data, "RAG")
@@ -71,8 +110,12 @@ def prepare_dataframe(rag_data, no_rag_data):
         return raw_df
 
     df_mean = raw_df.groupby(
-        ["ModelName", "TempID", "Group", "Configuration"]
-    )["Value"].mean().reset_index()
+        ["ModelName", "TempID", "Group", "Configuration"], as_index=False
+    ).agg({
+        "Value": "mean",
+        "CILower": "mean",
+        "CIUpper": "mean"
+    })
 
     df_mean['ModelName'] = pd.Categorical(
         df_mean['ModelName'], 
@@ -104,8 +147,34 @@ def apply_custom_style(ax, df_data):
         ax=ax,
         edgecolor='black',
         linewidth=1,
+        hue_order=HUE_ORDER,
+        errorbar=None,
         legend=False
     )
+
+    x_order = df_data["Group"].drop_duplicates().tolist()
+    for container, configuration in zip(ax.containers, HUE_ORDER):
+        config_rows = (
+            df_data[df_data["Configuration"] == configuration]
+            .set_index("Group")
+            .reindex(x_order)
+        )
+
+        for patch, (_, row) in zip(container.patches, config_rows.iterrows()):
+            lower = row.get("CILower")
+            upper = row.get("CIUpper")
+            value = row.get("Value")
+
+            if pd.isna(lower) or pd.isna(upper) or pd.isna(value):
+                continue
+
+            x_center = patch.get_x() + patch.get_width() / 2
+            yerr = [[max(0, value - lower)], [max(0, upper - value)]]
+            ax.errorbar(
+                x_center, value, yerr=yerr, fmt='none',
+                ecolor='black', elinewidth=1.5, capsize=4, capthick=1.5,
+                zorder=5
+            )
 
     unique_models = df_data["ModelName"].drop_duplicates().tolist()
     temps_per_model = ["1", "2", "3"]
@@ -148,6 +217,7 @@ def apply_custom_style(ax, df_data):
     ax.set_ylabel("Relevance", fontsize=26, fontweight='bold', labelpad=15)
     ax.tick_params(axis='y', labelsize=26)
 
+    # IMPORTANTE: zoom en rango útil
     ax.set_ylim(2.0, 5.1)
 
 # =====================================================
@@ -176,8 +246,8 @@ def generate_report():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    plt.savefig(os.path.join(OUTPUT_DIR, "geval_relevance.png"), dpi=300, bbox_inches='tight')
-    plt.savefig(os.path.join(OUTPUT_DIR, "geval_relevance.pdf"), format='pdf', bbox_inches='tight')
+    plt.savefig(os.path.join(OUTPUT_DIR, "geval_relevance_V2.png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(OUTPUT_DIR, "geval_relevance_V2.pdf"), format='pdf', bbox_inches='tight')
 
     print(f"Successfully generated G-Eval plot in {OUTPUT_DIR}/")
     plt.close()

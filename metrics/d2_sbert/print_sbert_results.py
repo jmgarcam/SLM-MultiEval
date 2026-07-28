@@ -24,6 +24,7 @@ COLOR_HUMAN  = '#008000'
 COLOR_GRID   = '#E0E0E0'
 
 PALETTE = {"NO RAG": COLOR_NO_RAG, "RAG": COLOR_RAG}
+HUE_ORDER = ["NO RAG", "RAG"]
 
 # =====================================================
 # 2. DATA LOADING
@@ -42,15 +43,23 @@ def load_data(filepath):
 def prepare_dataframe(json_data):
     """Parses JSON data to calculate averages across sources and human baselines."""
     rows = []
-    baselines = []
+    baseline_values = []
+    baseline_ci_lowers = []
+    baseline_ci_uppers = []
 
     sources = sorted([k for k, v in json_data.items() if "llm_models" in v])
 
     for source in sources:
         content = json_data[source]
-        base_val = content.get("human_baseline", {}).get("mean_sbert", 0)
+        baseline_block = content.get("human_baseline", {})
+        base_val = baseline_block.get("mean_sbert", 0)
         if base_val > 0:
-            baselines.append(base_val)
+            baseline_values.append(base_val)
+        baseline_ci = baseline_block.get("ci95_sbert", {})
+        if baseline_ci.get("lower") is not None:
+            baseline_ci_lowers.append(baseline_ci["lower"])
+        if baseline_ci.get("upper") is not None:
+            baseline_ci_uppers.append(baseline_ci["upper"])
 
         llm_models = content.get("llm_models", {})
         for model_id, features in llm_models.items():
@@ -58,15 +67,19 @@ def prepare_dataframe(json_data):
 
             for temp_id, features_data in features.items():
                 try:
-                    rag_val = features_data["RAG"]["mean_sbert"]
-                    no_rag_val = features_data["NO_RAG"]["mean_sbert"]
+                    rag_block = features_data["RAG"]
+                    no_rag_block = features_data["NO_RAG"]
+                    rag_val = rag_block["mean_sbert"]
+                    no_rag_val = no_rag_block["mean_sbert"]
 
                     rows.append({
                         "ModelName": model_name,
                         "TempID": temp_id,
                         "Group": f"{model_id}_{temp_id}",
                         "Configuration": "NO RAG",
-                        "Value": no_rag_val
+                        "Value": no_rag_val,
+                        "CILower": no_rag_block.get("ci95_sbert", {}).get("lower"),
+                        "CIUpper": no_rag_block.get("ci95_sbert", {}).get("upper")
                     })
 
                     rows.append({
@@ -74,16 +87,24 @@ def prepare_dataframe(json_data):
                         "TempID": temp_id,
                         "Group": f"{model_id}_{temp_id}",
                         "Configuration": "RAG",
-                        "Value": rag_val
+                        "Value": rag_val,
+                        "CILower": rag_block.get("ci95_sbert", {}).get("lower"),
+                        "CIUpper": rag_block.get("ci95_sbert", {}).get("upper")
                     })
                 except KeyError:
                     continue
 
     raw_df = pd.DataFrame(rows)
     if raw_df.empty:
-        return raw_df, 0
+        return raw_df, {"mean": 0, "lower": None, "upper": None}
 
-    df_mean = raw_df.groupby(["ModelName", "TempID", "Group", "Configuration"])["Value"].mean().reset_index()
+    df_mean = raw_df.groupby(
+        ["ModelName", "TempID", "Group", "Configuration"], as_index=False
+    ).agg({
+        "Value": "mean",
+        "CILower": "mean",
+        "CIUpper": "mean"
+    })
 
     df_mean['ModelName'] = pd.Categorical(
         df_mean['ModelName'], 
@@ -92,13 +113,23 @@ def prepare_dataframe(json_data):
     )
     df_mean = df_mean.sort_values(['ModelName', 'TempID'])
 
-    mean_baseline = sum(baselines) / len(baselines) if baselines else 0
-    return df_mean, mean_baseline
+    baseline_stats = {
+        "mean": sum(baseline_values) / len(baseline_values) if baseline_values else 0,
+        "lower": (
+            sum(baseline_ci_lowers) / len(baseline_ci_lowers)
+            if baseline_ci_lowers else None
+        ),
+        "upper": (
+            sum(baseline_ci_uppers) / len(baseline_ci_uppers)
+            if baseline_ci_uppers else None
+        )
+    }
+    return df_mean, baseline_stats
 
 # =====================================================
 # 4. STYLE & PLOTTING FUNCTION
 # =====================================================
-def apply_custom_style(ax, df_data, baseline_val):
+def apply_custom_style(ax, df_data, baseline_stats):
     """Applies specific styling, labels, and legends to the provided axis."""
     ax.set_axisbelow(True)
     # Horizontal grid only
@@ -114,8 +145,37 @@ def apply_custom_style(ax, df_data, baseline_val):
         ax=ax,
         edgecolor='black',
         linewidth=1,
+        hue_order=HUE_ORDER,
+        errorbar=None,
         legend=False  # Se desactiva la leyenda automática de Seaborn
     )
+
+    x_order = df_data["Group"].drop_duplicates().tolist()
+    for container, configuration in zip(ax.containers, HUE_ORDER):
+        config_rows = (
+            df_data[df_data["Configuration"] == configuration]
+            .set_index("Group")
+            .reindex(x_order)
+        )
+
+        for patch, (_, row) in zip(container.patches, config_rows.iterrows()):
+            lower = row.get("CILower")
+            upper = row.get("CIUpper")
+            value = row.get("Value")
+
+            if pd.isna(lower) or pd.isna(upper) or pd.isna(value):
+                continue
+
+            x_center = patch.get_x() + patch.get_width() / 2
+            yerr = [
+                [max(0, value - lower)],
+                [max(0, upper - value)]
+            ]
+            ax.errorbar(
+                x_center, value, yerr=yerr, fmt='none',
+                ecolor='black', elinewidth=1.5, capsize=4, capthick=1.5,
+                zorder=5
+            )
 
     unique_models = df_data["ModelName"].drop_duplicates().tolist()
     temps_per_model = df_data["TempID"].drop_duplicates().tolist()
@@ -154,11 +214,20 @@ def apply_custom_style(ax, df_data, baseline_val):
                         alpha=0.5)
 
     # --- Human Baseline ---
+    baseline_val = baseline_stats.get("mean", 0)
+    baseline_lower = baseline_stats.get("lower")
+    baseline_upper = baseline_stats.get("upper")
     if baseline_val > 0:
+        if baseline_lower is not None and baseline_upper is not None:
+            ax.axhspan(ymin=baseline_lower, ymax=baseline_upper,
+                       color=COLOR_HUMAN,
+                       alpha=0.12,
+                       zorder=2)
         ax.axhline(y=baseline_val,
                     color=COLOR_HUMAN,
                     linestyle='--',
-                    linewidth=2)
+                    linewidth=2,
+                    zorder=6)
 
     # --- Y-Axis ---
     ax.set_ylabel("SBERTScore", fontsize=26, fontweight='bold', labelpad=15)
@@ -170,7 +239,7 @@ def apply_custom_style(ax, df_data, baseline_val):
 # =====================================================
 def generate_report():
     """Generates and saves the SBERTScore mean plot."""
-    df_mean, mean_baseline = prepare_dataframe(loaded_data)
+    df_mean, baseline_stats = prepare_dataframe(loaded_data)
 
     if df_mean.empty:
         print("No data available.")
@@ -178,7 +247,7 @@ def generate_report():
 
     fig, ax = plt.subplots(figsize=(10, 9))
 
-    apply_custom_style(ax, df_mean, mean_baseline)
+    apply_custom_style(ax, df_mean, baseline_stats)
 
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.20) 

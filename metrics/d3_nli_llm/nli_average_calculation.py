@@ -1,7 +1,9 @@
 import json
 import math
 import os
+import numpy as np
 from collections import defaultdict
+from scipy.stats import t
 
 # =====================================================
 # INPUT FILES
@@ -37,6 +39,48 @@ def softmax_three(entailment, contradiction, no_neutral):
     return [x / total for x in exps]
 
 
+def calculate_mean_and_ci95(values, confidence=0.95):
+    """Calculate mean and two-sided Student 95% CI for valid values."""
+    clean_values = []
+    for value in values:
+        if value is None:
+            continue
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            continue
+        if not np.isnan(numeric_value):
+            clean_values.append(numeric_value)
+
+    if not clean_values:
+        return {
+            "mean": 0.0,
+            "ci95": {"lower": None, "upper": None},
+            "n": 0
+        }
+
+    mean_value = float(np.mean(clean_values))
+    sample_size = len(clean_values)
+    if sample_size < 2:
+        return {
+            "mean": mean_value,
+            "ci95": {"lower": None, "upper": None},
+            "n": sample_size
+        }
+
+    standard_error = np.std(clean_values, ddof=1) / np.sqrt(sample_size)
+    alpha = 1 - confidence
+    margin = t.ppf(1 - alpha / 2, df=sample_size - 1) * standard_error
+    return {
+        "mean": mean_value,
+        "ci95": {
+            "lower": float(mean_value - margin),
+            "upper": float(mean_value + margin)
+        },
+        "n": sample_size
+    }
+
+
 # =====================================================
 # RAG / NO RAG PROCESSING
 # =====================================================
@@ -44,10 +88,9 @@ def compute_feature_means(input_path):
     data = load_json_safe(input_path)
 
     accum = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: {
-        "sum_entailment_softmax": 0.0,
-        "sum_contradiction_softmax": 0.0,
-        "sum_no_neutral_softmax": 0.0,
-        "num_news": 0
+        "entailment_softmax_values": [],
+        "contradiction_softmax_values": [],
+        "no_neutral_softmax_values": []
     })))
 
     for newspaper, llm_dict in data.items():
@@ -78,10 +121,9 @@ def compute_feature_means(input_path):
                     e_s, c_s, n_s = softmax_three(e, c, n)
 
                     bucket = accum[newspaper][str(llm_id)][str(feature_id)]
-                    bucket["sum_entailment_softmax"] += e_s
-                    bucket["sum_contradiction_softmax"] += c_s
-                    bucket["sum_no_neutral_softmax"] += n_s
-                    bucket["num_news"] += 1
+                    bucket["entailment_softmax_values"].append(e_s)
+                    bucket["contradiction_softmax_values"].append(c_s)
+                    bucket["no_neutral_softmax_values"].append(n_s)
 
     return finalize(accum)
 
@@ -93,10 +135,9 @@ def compute_real_means(input_path):
     data = load_json_safe(input_path)
 
     accum = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: {
-        "sum_entailment_softmax": 0.0,
-        "sum_contradiction_softmax": 0.0,
-        "sum_no_neutral_softmax": 0.0,
-        "num_news": 0
+        "entailment_softmax_values": [],
+        "contradiction_softmax_values": [],
+        "no_neutral_softmax_values": []
     })))
 
     for newspaper, news_list in data.items():
@@ -125,10 +166,9 @@ def compute_real_means(input_path):
             feature_id = "1"
 
             bucket = accum[newspaper][llm_id][feature_id]
-            bucket["sum_entailment_softmax"] += e_s
-            bucket["sum_contradiction_softmax"] += c_s
-            bucket["sum_no_neutral_softmax"] += n_s
-            bucket["num_news"] += 1
+            bucket["entailment_softmax_values"].append(e_s)
+            bucket["contradiction_softmax_values"].append(c_s)
+            bucket["no_neutral_softmax_values"].append(n_s)
 
     return finalize(accum)
 
@@ -146,15 +186,27 @@ def finalize(accum):
             result[newspaper][llm_id] = {}
 
             for feature_id, stats in feature_dict.items():
-                num_news = stats["num_news"]
+                entailment_stats = calculate_mean_and_ci95(
+                    stats["entailment_softmax_values"]
+                )
+                contradiction_stats = calculate_mean_and_ci95(
+                    stats["contradiction_softmax_values"]
+                )
+                no_neutral_stats = calculate_mean_and_ci95(
+                    stats["no_neutral_softmax_values"]
+                )
+                num_news = entailment_stats["n"]
 
                 if num_news == 0:
                     continue
 
                 result[newspaper][llm_id][feature_id] = {
-                    "mean_entailment_softmax": stats["sum_entailment_softmax"] / num_news,
-                    "mean_contradiction_softmax": stats["sum_contradiction_softmax"] / num_news,
-                    "mean_no_neutral_softmax": stats["sum_no_neutral_softmax"] / num_news,
+                    "mean_entailment_softmax": entailment_stats["mean"],
+                    "ci95_entailment_softmax": entailment_stats["ci95"],
+                    "mean_contradiction_softmax": contradiction_stats["mean"],
+                    "ci95_contradiction_softmax": contradiction_stats["ci95"],
+                    "mean_no_neutral_softmax": no_neutral_stats["mean"],
+                    "ci95_no_neutral_softmax": no_neutral_stats["ci95"],
                     "num_news": num_news
                 }
 

@@ -7,7 +7,10 @@ import html
 import sys
 import os
 import json
-from scipy.stats import ttest_ind 
+from math import sqrt
+from statistics import stdev
+from time import perf_counter_ns
+from scipy.stats import t, ttest_ind
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -23,17 +26,74 @@ INPUT_REAL = "../reales.json"
 NEWSPAPER_A = "NEWSPAPER_A"
 NEWSPAPER_B = "NEWSPAPER_B"
 
-def remove_html(text):
-    """Remove HTML tags, URLs, and noisy tokens from text."""
-    if not text:
+NANOSECONDS_PER_SECOND = 1_000_000_000
+BOILERPLATE_RE = re.compile(r"\b(?:leer|ver)\s+más\b", flags=re.IGNORECASE)
+URL_RE = re.compile(r"http\S+|www\S+", flags=re.IGNORECASE)
+
+
+def summarize_timing_samples(samples_ns):
+    """Calculate total, mean, and two-sided Student 95% CI."""
+    sample_size = len(samples_ns)
+    total_ns = sum(samples_ns)
+    if sample_size == 0:
+        return {
+            "n_news": 0,
+            "total_seconds": 0.0,
+            "mean_seconds_per_news": None,
+            "ci95_seconds_per_news": {"lower": None, "upper": None},
+        }
+    mean_ns = total_ns / sample_size
+    if sample_size == 1:
+        interval = {"lower": None, "upper": None}
+    else:
+        standard_error_ns = stdev(samples_ns) / sqrt(sample_size)
+        margin_ns = float(t.ppf(0.975, df=sample_size - 1)) * standard_error_ns
+        interval = {
+            "lower": (mean_ns - margin_ns) / NANOSECONDS_PER_SECOND,
+            "upper": (mean_ns + margin_ns) / NANOSECONDS_PER_SECOND,
+        }
+    return {
+        "n_news": sample_size,
+        "total_seconds": total_ns / NANOSECONDS_PER_SECOND,
+        "mean_seconds_per_news": mean_ns / NANOSECONDS_PER_SECOND,
+        "ci95_seconds_per_news": interval,
+    }
+
+
+class MetricTimingCollector:
+    """Time one complete metric call for every input entry."""
+
+    def __init__(self, clock_ns=perf_counter_ns):
+        self.clock_ns = clock_ns
+        self.samples_ns = []
+
+    def measure(self, operation, *args):
+        started_ns = self.clock_ns()
+        result = operation(*args)
+        self.samples_ns.append(self.clock_ns() - started_ns)
+        return result
+
+    def as_dict(self):
+        return {
+            "unit": "seconds",
+            **summarize_timing_samples(self.samples_ns),
+        }
+
+def clean_metric_text(value):
+    """Remove markup, URLs, and explicit read-more boilerplate only."""
+    if value is None:
         return ""
-    text = html.unescape(text)
-    text = re.sub(r"<[^>]+>", "", text)
-    trash_patterns = r'\b(nbsp|leer|más|ver más|el mundo)\b'
-    text = re.sub(trash_patterns, "", text, flags=re.IGNORECASE)
-    text = re.sub(r'http\S+|www\S+', '', text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
+    text = html.unescape(str(value))
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = BOILERPLATE_RE.sub(" ", text)
+    text = URL_RE.sub(" ", text)
+    text = re.sub(r"\bnbsp\b", " ", text, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def remove_html(text):
+    """Backward-compatible wrapper around the metric cleaner."""
+    return clean_metric_text(text)
 
 
 # ==========================================
@@ -69,13 +129,19 @@ def calculate_fernandez_huerta(text):
         return np.nan
 
 
-def process_batch(news_list, text_key, newspaper_name):
+def process_batch(news_list, text_key, newspaper_name, fernandez_huerta_timer=None):
     """Clean text and compute readability for each news item."""
     for news in news_list:
         news[text_key] = remove_html(news.get(text_key))
         text = news.get(text_key)
 
-        fh = calculate_fernandez_huerta(text)
+        if fernandez_huerta_timer is None:
+            fh = calculate_fernandez_huerta(text)
+        else:
+            fh = fernandez_huerta_timer.measure(
+                calculate_fernandez_huerta,
+                text
+            )
         news["fernandez_huerta"] = fh
     return None
 
@@ -94,32 +160,71 @@ def initialize_empty_structure(newspaper_list):
     return data
 
 
-def calculate_means(news, results, is_real=False):
-    """Compute mean FH scores per feature or globally."""
-    fh_data = {}
+def calculate_mean_and_ci95(values, confidence=0.95):
+    """Calculate mean and two-sided Student 95% CI for valid values."""
+    clean_values = []
+    for value in values:
+        if value is None:
+            continue
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            continue
+        if not np.isnan(numeric_value):
+            clean_values.append(numeric_value)
 
+    if not clean_values:
+        return {
+            "mean": 0.0,
+            "ci95": {"lower": None, "upper": None},
+            "n": 0
+        }
+
+    mean_value = float(np.mean(clean_values))
+    sample_size = len(clean_values)
+    if sample_size < 2:
+        return {
+            "mean": mean_value,
+            "ci95": {"lower": None, "upper": None},
+            "n": sample_size
+        }
+
+    standard_error = np.std(clean_values, ddof=1) / np.sqrt(sample_size)
+    alpha = 1 - confidence
+    margin = t.ppf(1 - alpha / 2, df=sample_size - 1) * standard_error
+    return {
+        "mean": mean_value,
+        "ci95": {
+            "lower": float(mean_value - margin),
+            "upper": float(mean_value + margin)
+        },
+        "n": sample_size
+    }
+
+
+def calculate_means(news, results, is_real=False):
+    """Compute mean FH scores, sample sizes, and 95% confidence intervals."""
     if not is_real:
         for feature in [1, 2, 3]:
-            fh_data[feature] = {'count': 0, 'sum': 0}
-
-        for item in news:
-            feature_id = int(item.get('id_feature', -1))
-            fh_data[feature_id]['count'] += 1
-            fh_data[feature_id]['sum'] += item['fernandez_huerta']
-
-        for feature in [1, 2, 3]:
-            avg_fh = fh_data[feature]['sum'] / fh_data[feature]['count'] if fh_data[feature]['count'] > 0 else 0
+            feature_values = [
+                item.get("fernandez_huerta", np.nan)
+                for item in news
+                if int(item.get("id_feature", -1)) == feature
+            ]
+            stats = calculate_mean_and_ci95(feature_values)
             results[feature] = {
-                'mean_fh': avg_fh
+                "mean_fh": stats["mean"],
+                "ci95_fh": stats["ci95"],
+                "n_fh": stats["n"]
             }
     else:
-        fh_data = {'count': 0, 'sum': 0}
-
-        for item in news:
-            fh_data['count'] += 1
-            fh_data['sum'] += item['fernandez_huerta']
-
-        results['mean_fh'] = fh_data['sum'] / fh_data['count']
+        stats = calculate_mean_and_ci95([
+            item.get("fernandez_huerta", np.nan)
+            for item in news
+        ])
+        results["mean_fh"] = stats["mean"]
+        results["ci95_fh"] = stats["ci95"]
+        results["n_fh"] = stats["n"]
 
 
 def calculate_t_student(news_no_rag, news_rag, p_values_dict):
@@ -138,13 +243,21 @@ def calculate_t_student(news_no_rag, news_rag, p_values_dict):
         }
 
 
-def save_structured_json(path, means_no_rag, means_rag, means_real, p_values):
+def save_structured_json(
+    path,
+    means_no_rag,
+    means_rag,
+    means_real,
+    p_values,
+    calculation_times
+):
     """Save aggregated results and p-values to JSON."""
     final_structure = {}
     for newspaper in means_no_rag.keys():
         final_structure[newspaper] = {
             "real_reference_metrics": means_real.get(newspaper, {}),
-            "llm_models": {}
+            "llm_models": {},
+            "calculation_times": calculation_times.get(newspaper, {})
         }
         for llm_id, features_dict in means_no_rag[newspaper].items():
             final_structure[newspaper]["llm_models"][llm_id] = {}
@@ -168,20 +281,38 @@ def save_structured_json(path, means_no_rag, means_rag, means_real, p_values):
 # ==========================================
 
 ids_to_process = [1, 2, 3]
+newspapers = [NEWSPAPER_A, NEWSPAPER_B]
 
-results_no_rag = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B])
-results_rag = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B])
-p_values_results = initialize_empty_structure([NEWSPAPER_A, NEWSPAPER_B])
+results_no_rag = initialize_empty_structure(newspapers)
+results_rag = initialize_empty_structure(newspapers)
+p_values_results = initialize_empty_structure(newspapers)
 
 results_real = {
     NEWSPAPER_A: {'mean_fh': 0},
     NEWSPAPER_B: {'mean_fh': 0}
 }
 
-for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
+fernandez_huerta_timers = {
+    newspaper: MetricTimingCollector()
+    for newspaper in newspapers
+}
+
+for newspaper in newspapers:
 
     real_content = {}
     real_content[newspaper] = get_real_news_from_json("../reales.json", newspaper)
+
+    process_batch(
+        real_content.get(newspaper, []),
+        "description",
+        newspaper,
+        fernandez_huerta_timer=fernandez_huerta_timers[newspaper]
+    )
+    calculate_means(
+        real_content.get(newspaper, []),
+        results_real[newspaper],
+        is_real=True
+    )
 
     for llm_id in ids_to_process:
         print(f"\n>>>> STARTING PROCESS FOR ID_LLM = {llm_id} <<<<")
@@ -194,9 +325,18 @@ for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
         synthetic_rag[newspaper] = get_synthetic_news_from_json(INPUT_RAG, newspaper, llm_id)
         synthetic_no_rag[newspaper] = get_synthetic_news_from_json(INPUT_NORAG, newspaper, llm_id)
 
-        process_batch(real_content.get(newspaper, []), "description", newspaper)
-        process_batch(synthetic_rag.get(newspaper, []), "synthetic_description", newspaper)
-        process_batch(synthetic_no_rag.get(newspaper, []), "synthetic_description", newspaper)
+        process_batch(
+            synthetic_rag.get(newspaper, []),
+            "synthetic_description",
+            newspaper,
+            fernandez_huerta_timer=fernandez_huerta_timers[newspaper]
+        )
+        process_batch(
+            synthetic_no_rag.get(newspaper, []),
+            "synthetic_description",
+            newspaper,
+            fernandez_huerta_timer=fernandez_huerta_timers[newspaper]
+        )
 
         calculate_means(
             synthetic_no_rag.get(newspaper, []),
@@ -210,12 +350,6 @@ for newspaper in [NEWSPAPER_A, NEWSPAPER_B]:
             is_real=False
         )
 
-        calculate_means(
-            real_content.get(newspaper, []),
-            results_real[newspaper],
-            is_real=True
-        )
-
         calculate_t_student(
             synthetic_no_rag.get(newspaper, []), 
             synthetic_rag.get(newspaper, []), 
@@ -227,5 +361,11 @@ save_structured_json(
     results_no_rag,
     results_rag,
     results_real,
-    p_values_results
+    p_values_results,
+    {
+        newspaper: {
+            "fernandez_huerta": fernandez_huerta_timers[newspaper].as_dict()
+        }
+        for newspaper in newspapers
+    }
 )

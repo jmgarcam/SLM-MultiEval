@@ -24,6 +24,7 @@ COLOR_HUMAN  = '#008000'
 COLOR_GRID   = '#E0E0E0'
 
 PALETTE = {"NO RAG": COLOR_NO_RAG, "RAG": COLOR_RAG}
+HUE_ORDER = ["NO RAG", "RAG"]
 
 # =====================================================
 # 2. DATA LOADING & PROCESSING
@@ -38,6 +39,8 @@ def load_data(filepath):
 def prepare_dataframe(json_data):
     rows = []
     baseline_values = []
+    baseline_ci_lowers = []
+    baseline_ci_uppers = []
     sources = [k for k, v in json_data.items() if "llm_models" in v]
     
     for source in sources:
@@ -45,41 +48,98 @@ def prepare_dataframe(json_data):
         base_val = content.get("real_reference_metrics", {}).get("mean_entity_entropy", 0)
         if base_val > 0:
             baseline_values.append(base_val)
+        baseline_ci = content.get("real_reference_metrics", {}).get("ci95_entity_entropy", {})
+        if baseline_ci.get("lower") is not None:
+            baseline_ci_lowers.append(baseline_ci["lower"])
+        if baseline_ci.get("upper") is not None:
+            baseline_ci_uppers.append(baseline_ci["upper"])
             
         llm_models = content.get("llm_models", {})
         for model_id, features in llm_models.items():
             model_name = MODEL_NAMES.get(model_id, f"Model {model_id}")
             for temp_id, strategies in features.items():
                 try:
+                    no_rag_block = strategies["NO_RAG"]
+                    rag_block = strategies["RAG"]
                     rows.append({
                         "ModelName": model_name, "TempID": temp_id, "Group": f"{model_id}_{temp_id}", 
-                        "Configuration": "NO RAG", "Value": float(strategies["NO_RAG"]["mean_entity_entropy"])
+                        "Configuration": "NO RAG", "Value": float(no_rag_block["mean_entity_entropy"]),
+                        "CILower": no_rag_block.get("ci95_entity_entropy", {}).get("lower"),
+                        "CIUpper": no_rag_block.get("ci95_entity_entropy", {}).get("upper")
                     })
                     rows.append({
                         "ModelName": model_name, "TempID": temp_id, "Group": f"{model_id}_{temp_id}", 
-                        "Configuration": "RAG", "Value": float(strategies["RAG"]["mean_entity_entropy"])
+                        "Configuration": "RAG", "Value": float(rag_block["mean_entity_entropy"]),
+                        "CILower": rag_block.get("ci95_entity_entropy", {}).get("lower"),
+                        "CIUpper": rag_block.get("ci95_entity_entropy", {}).get("upper")
                     })
                 except (KeyError, TypeError): continue
                     
     raw_df = pd.DataFrame(rows)
-    if raw_df.empty: return raw_df, 0
-    df_mean = raw_df.groupby(["ModelName", "TempID", "Group", "Configuration"])["Value"].mean().reset_index()
+    if raw_df.empty:
+        return raw_df, {"mean": 0, "lower": None, "upper": None}
+    df_mean = raw_df.groupby(
+        ["ModelName", "TempID", "Group", "Configuration"], as_index=False
+    ).agg({
+        "Value": "mean",
+        "CILower": "mean",
+        "CIUpper": "mean"
+    })
     df_mean['ModelName'] = pd.Categorical(df_mean['ModelName'], categories=MODEL_NAMES.values(), ordered=True)
     df_mean = df_mean.sort_values(['ModelName', 'TempID'])
-    return df_mean, (sum(baseline_values)/len(baseline_values) if baseline_values else 0)
+    baseline_stats = {
+        "mean": (sum(baseline_values) / len(baseline_values) if baseline_values else 0),
+        "lower": (
+            sum(baseline_ci_lowers) / len(baseline_ci_lowers)
+            if baseline_ci_lowers else None
+        ),
+        "upper": (
+            sum(baseline_ci_uppers) / len(baseline_ci_uppers)
+            if baseline_ci_uppers else None
+        )
+    }
+    return df_mean, baseline_stats
 
 # =====================================================
 # 3. STYLE & PLOTTING
 # =====================================================
-def apply_custom_style(ax, df_data, baseline_val):
+def apply_custom_style(ax, df_data, baseline_stats):
     ax.set_axisbelow(True)
     ax.yaxis.grid(True, color=COLOR_GRID, linestyle='-', linewidth=1, zorder=1)
     ax.xaxis.grid(False)
 
     sns.barplot(
         data=df_data, x="Group", y="Value", hue="Configuration",
-        palette=PALETTE, ax=ax, edgecolor='black', linewidth=1, zorder=3
+        palette=PALETTE, ax=ax, edgecolor='black', linewidth=1, zorder=3,
+        hue_order=HUE_ORDER, errorbar=None
     )
+
+    x_order = df_data["Group"].drop_duplicates().tolist()
+    for container, configuration in zip(ax.containers, HUE_ORDER):
+        config_rows = (
+            df_data[df_data["Configuration"] == configuration]
+            .set_index("Group")
+            .reindex(x_order)
+        )
+
+        for patch, (_, row) in zip(container.patches, config_rows.iterrows()):
+            lower = row.get("CILower")
+            upper = row.get("CIUpper")
+            value = row.get("Value")
+
+            if pd.isna(lower) or pd.isna(upper) or pd.isna(value):
+                continue
+
+            x_center = patch.get_x() + patch.get_width() / 2
+            yerr = [
+                [max(0, value - lower)],
+                [max(0, upper - value)]
+            ]
+            ax.errorbar(
+                x_center, value, yerr=yerr, fmt='none',
+                ecolor='black', elinewidth=1.5, capsize=4, capthick=1.5,
+                zorder=5
+            )
 
     unique_models = df_data["ModelName"].unique()
     temps_per_model = df_data["TempID"].unique()
@@ -106,8 +166,13 @@ def apply_custom_style(ax, df_data, baseline_val):
             ax.axvline(idx * n_temps + n_temps - 0.5, color='gray', linestyle=':', alpha=0.5, zorder=1)
 
     # Human Baseline
+    baseline_val = baseline_stats.get("mean", 0)
+    baseline_lower = baseline_stats.get("lower")
+    baseline_upper = baseline_stats.get("upper")
     if baseline_val > 0:
-        ax.axhline(y=baseline_val, color=COLOR_HUMAN, linestyle='--', linewidth=2, zorder=4)
+        if baseline_lower is not None and baseline_upper is not None:
+            ax.axhspan(baseline_lower, baseline_upper, color=COLOR_HUMAN, alpha=0.12, zorder=6)
+        ax.axhline(y=baseline_val, color=COLOR_HUMAN, linestyle='--', linewidth=2, zorder=7)
 
     # LEYENDA DENTRO ARRIBA A LA DERECHA
     handles, labels = ax.get_legend_handles_labels()
@@ -143,11 +208,11 @@ def apply_custom_style(ax, df_data, baseline_val):
 def generate_report():
     data = load_data(INPUT_FILE)
     if not data: return
-    df, mean_baseline = prepare_dataframe(data)
+    df, baseline_stats = prepare_dataframe(data)
     if df.empty: return
 
     fig, ax = plt.subplots(figsize=(10, 9))
-    apply_custom_style(ax, df, mean_baseline)
+    apply_custom_style(ax, df, baseline_stats)
 
     plt.tight_layout()
     # Bottom adjustment for model names

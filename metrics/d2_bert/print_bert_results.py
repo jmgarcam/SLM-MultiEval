@@ -56,14 +56,23 @@ for newspaper_key, content in data.items():
                 for config, metrics in configs.items():
                     if metrics.get("mean_f1", 0) > 0:
                         clean_config = config.replace("_", " ")
+                        precision_ci = metrics.get("ci95_precision", {})
+                        recall_ci = metrics.get("ci95_recall", {})
+                        f1_ci = metrics.get("ci95_f1", {})
                         rows.append({
                             "Newspaper": newspaper_key,
                             "Model": model_name,
                             "Configuration": clean_config, 
                             "Temperature": temp_label, 
                             "Precision": metrics.get("mean_precision", 0),
+                            "PrecisionLower": precision_ci.get("lower"),
+                            "PrecisionUpper": precision_ci.get("upper"),
                             "Recall": metrics.get("mean_recall", 0),
-                            "F1": metrics.get("mean_f1", 0)
+                            "RecallLower": recall_ci.get("lower"),
+                            "RecallUpper": recall_ci.get("upper"),
+                            "F1": metrics.get("mean_f1", 0),
+                            "F1Lower": f1_ci.get("lower"),
+                            "F1Upper": f1_ci.get("upper")
                         })
 
 raw_df = pd.DataFrame(rows)
@@ -71,7 +80,16 @@ if raw_df.empty:
     print("Error: No data found.")
     exit()
 
-df_mean = raw_df.groupby(["Model", "Configuration", "Temperature"])[["Precision", "Recall", "F1"]].mean().reset_index()
+metric_columns = [
+    "Precision", "PrecisionLower", "PrecisionUpper",
+    "Recall", "RecallLower", "RecallUpper",
+    "F1", "F1Lower", "F1Upper"
+]
+df_mean = (
+    raw_df.groupby(["Model", "Configuration", "Temperature"])[metric_columns]
+    .mean()
+    .reset_index()
+)
 
 df_mean['Model'] = pd.Categorical(
     df_mean['Model'], 
@@ -85,7 +103,28 @@ if NEWSPAPER_A in baselines and NEWSPAPER_B in baselines:
     for metric in ["mean_precision", "mean_recall", "mean_f1"]:
         v1 = baselines[NEWSPAPER_A].get(metric, 0)
         v2 = baselines[NEWSPAPER_B].get(metric, 0)
-        mean_baselines[metric] = (v1 + v2) / 2
+        ci_key = metric.replace("mean_", "ci95_")
+        ci1 = baselines[NEWSPAPER_A].get(ci_key, {})
+        ci2 = baselines[NEWSPAPER_B].get(ci_key, {})
+        lower_values = [
+            value for value in (ci1.get("lower"), ci2.get("lower"))
+            if value is not None
+        ]
+        upper_values = [
+            value for value in (ci1.get("upper"), ci2.get("upper"))
+            if value is not None
+        ]
+        mean_baselines[metric] = {
+            "mean": (v1 + v2) / 2,
+            "lower": (
+                sum(lower_values) / len(lower_values)
+                if lower_values else None
+            ),
+            "upper": (
+                sum(upper_values) / len(upper_values)
+                if upper_values else None
+            )
+        }
 
 # ==========================================
 # 3. PLOTTING
@@ -128,6 +167,33 @@ def plot_metric_detailed(metric_col, base_filename):
     
     # --- CONFIGURACIÓN DEL EJE X (SEPARACIÓN DE NOMBRES A -0.18) ---
     unique_models = ["Ministral-3B", "Qwen-2.5-0.5B", "Llama-3.2-1B"]
+
+    lower_col = f"{metric_col}Lower"
+    upper_col = f"{metric_col}Upper"
+    for _, row in df_mean.iterrows():
+        lower = row.get(lower_col)
+        upper = row.get(upper_col)
+        value = row.get(metric_col)
+        model_name = str(row.get("Model"))
+        if (
+            model_name not in unique_models
+            or pd.isna(lower)
+            or pd.isna(upper)
+            or pd.isna(value)
+        ):
+            continue
+
+        x_position = unique_models.index(model_name)
+        yerr = [
+            [max(0, value - lower)],
+            [max(0, upper - value)]
+        ]
+        ax.errorbar(
+            x_position, value, yerr=yerr, fmt='none',
+            ecolor='#333333', elinewidth=1.3, capsize=4, capthick=1.3,
+            alpha=0.75, zorder=2
+        )
+
     ax.set_xticks(range(len(unique_models)))
     ax.set_xticklabels([]) # Eliminamos etiquetas automáticas
     ax.set_xlabel("")
@@ -144,9 +210,20 @@ def plot_metric_detailed(metric_col, base_filename):
     ax.tick_params(axis='y', labelsize=26)
     
     baseline_key = f"mean_{metric_col.lower()}"
-    val = mean_baselines.get(baseline_key, 0)
+    baseline_stats = mean_baselines.get(
+        baseline_key,
+        {"mean": 0, "lower": None, "upper": None}
+    )
+    val = baseline_stats.get("mean", 0)
+    baseline_lower = baseline_stats.get("lower")
+    baseline_upper = baseline_stats.get("upper")
     
     if val > 0:
+        if baseline_lower is not None and baseline_upper is not None:
+            ax.axhspan(
+                baseline_lower, baseline_upper, color='#008000',
+                alpha=0.12, zorder=1
+            )
         ax.axhline(y=val, color='#008000', linestyle='--', linewidth=2.5, alpha=0.8, zorder=2)
 
     handles, labels = ax.get_legend_handles_labels()
