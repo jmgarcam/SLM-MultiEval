@@ -47,6 +47,9 @@ TEMPERATURE_LABELS = {
     "3": "0.50",
 }
 
+FORCED_N_PAIRS = {}
+IMPLICIT_PAIR_DECISIONS = {}
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -278,22 +281,37 @@ def calculate_mean_and_ci95(
     }
 
 
-def calculate_summary(valid_rows, metric):
+def calculate_summary(
+    valid_rows,
+    metric,
+    forced_sample_size=None,
+    implicit_pair_decision=None,
+):
     no_rag_column = f"{metric}_no_rag"
     rag_column = f"{metric}_rag"
     no_rag_scores = [row[no_rag_column] for row in valid_rows]
     rag_scores = [row[rag_column] for row in valid_rows]
     differences = [row["difference_rag_minus_no_rag"] for row in valid_rows]
-    sample_size = len(differences)
+    observed_sample_size = len(differences)
+    sample_size = forced_sample_size or observed_sample_size
+    if sample_size < observed_sample_size:
+        raise ValueError(
+            f"Forced sample size {sample_size} is smaller than the "
+            f"observed sample size {observed_sample_size}"
+        )
+    implicit_pairs = sample_size - observed_sample_size
+    implicit_score = float(metric == implicit_pair_decision)
 
     no_rag_stats = calculate_mean_and_ci95(
-        sum(no_rag_scores),
-        sum(value ** 2 for value in no_rag_scores),
+        sum(no_rag_scores) + implicit_score * implicit_pairs,
+        sum(value ** 2 for value in no_rag_scores)
+        + implicit_score ** 2 * implicit_pairs,
         sample_size,
     )
     rag_stats = calculate_mean_and_ci95(
-        sum(rag_scores),
-        sum(value ** 2 for value in rag_scores),
+        sum(rag_scores) + implicit_score * implicit_pairs,
+        sum(value ** 2 for value in rag_scores)
+        + implicit_score ** 2 * implicit_pairs,
         sample_size,
     )
     difference_stats = calculate_mean_and_ci95(
@@ -309,7 +327,8 @@ def calculate_summary(valid_rows, metric):
         "mean_difference_rag_minus_no_rag": difference_stats["mean"],
         "confidence_interval_95": difference_stats["ci95"],
         "n_rag_higher": sum(value > 0 for value in differences),
-        "n_equal": sum(value == 0 for value in differences),
+        "n_equal": sum(value == 0 for value in differences)
+        + implicit_pairs,
         "n_rag_lower": sum(value < 0 for value in differences),
     }
 
@@ -333,6 +352,12 @@ def summarize_by_model_temperature(valid_rows, metric):
                 **calculate_summary(
                     grouped_rows[(model_id, temperature_id)],
                     metric,
+                    forced_sample_size=FORCED_N_PAIRS.get(
+                        (model_id, temperature_id)
+                    ),
+                    implicit_pair_decision=IMPLICIT_PAIR_DECISIONS.get(
+                        (model_id, temperature_id)
+                    ),
                 ),
             }
         )
@@ -370,6 +395,16 @@ def build_results(metric, args, paired_rows):
                 f"Indicator equal to 1 when decision is {metric!r}, otherwise 0"
             ),
             "decision_categories": list(METRICS),
+            "forced_n_pairs": {
+                f"{model_id}/{temperature_id}": sample_size
+                for (model_id, temperature_id), sample_size
+                in FORCED_N_PAIRS.items()
+            },
+            "implicit_pair_decisions": {
+                f"{model_id}/{temperature_id}": decision
+                for (model_id, temperature_id), decision
+                in IMPLICIT_PAIR_DECISIONS.items()
+            },
             "input_no_rag": str(args.no_rag_dir.resolve()),
             "input_rag": str(args.rag_dir.resolve()),
         },

@@ -1,8 +1,9 @@
 """Correlate G-Eval Consistency with NLI and factual LLM scores by news.
 
-The two enriched per-news JSON files are the only analytical inputs. NLI-E
-and NLI-C are obtained with the same three-way softmax used by metrics/nli_llm.
-Factual categories are converted to binary indicators.
+G-Eval and factual values come from the enriched per-news JSON files. NLI-E
+and NLI-C are replaced with the evaluations from the new-journal NLI study
+before applying the same three-way softmax used by metrics/nli_llm. Factual
+categories are converted to binary indicators.
 """
 
 from __future__ import annotations
@@ -15,6 +16,14 @@ from html import escape
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parents[2]
+NEW_NLI_RESULTS_DIR = (
+    PROJECT_ROOT / "metrics/nli_llm/new_journal/nli_results"
+)
+NEW_NLI_FILES = {
+    "NO_RAG": NEW_NLI_RESULTS_DIR / "evaluation_no_rag_agrupado.json",
+    "RAG": NEW_NLI_RESULTS_DIR / "evaluacion_rag_agrupado.json",
+}
 INPUT_FILES = {
     "NO_RAG": BASE_DIR / "consistency_NO_RAG_by_news.json",
     "RAG": BASE_DIR / "consistency_RAG_by_news.json",
@@ -32,10 +41,10 @@ FACTUAL_DECISIONS = {"correct", "partially_correct", "incorrect"}
 
 DERIVED_METRICS = {
     "NLI-E": (
-        "softmax(entailment, contradiction, no_mention)[entailment]"
+        "softmax(entailment, contradiction, no_neutral)[entailment]"
     ),
     "1−NLI-C": (
-        "1 - softmax(entailment, contradiction, no_mention)[contradiction]"
+        "1 - softmax(entailment, contradiction, no_neutral)[contradiction]"
     ),
     "Factual Correct": "1 if factual_llm.decision == 'correct', else 0",
     "1−Incorrect": "1 if factual_llm.decision != 'incorrect', else 0",
@@ -65,6 +74,107 @@ def finite_float(value: object, context: str) -> float:
     if not math.isfinite(number):
         raise ValueError(f"Non-finite value at {context}: {value!r}")
     return number
+
+
+def build_new_nli_index(
+    source_data: dict, label: str
+) -> dict[tuple[str, str, str, str], dict[str, float]]:
+    """Index the new per-news NLI evaluations by their pairing key."""
+
+    index: dict[tuple[str, str, str, str], dict[str, float]] = {}
+    for newspaper, llm_dict in source_data.items():
+        if not isinstance(llm_dict, dict):
+            raise ValueError(f"{label}: expected an object at {newspaper}")
+        for llm_id, feature_dict in llm_dict.items():
+            if not isinstance(feature_dict, dict):
+                raise ValueError(
+                    f"{label}: expected an object at {newspaper}/{llm_id}"
+                )
+            for feature_id, news_list in feature_dict.items():
+                if not isinstance(news_list, list):
+                    raise ValueError(
+                        f"{label}: expected a list at "
+                        f"{newspaper}/{llm_id}/{feature_id}"
+                    )
+                for news_item in news_list:
+                    if not isinstance(news_item, dict):
+                        raise ValueError(f"{label}: NLI entry is not an object")
+                    news_id = str(news_item.get("id_news", "")).strip()
+                    key = (
+                        str(newspaper),
+                        str(llm_id),
+                        str(feature_id),
+                        news_id,
+                    )
+                    if not news_id:
+                        raise ValueError(f"{label}: NLI record without id_news")
+                    if key in index:
+                        raise ValueError(f"{label}: duplicate NLI key {key}")
+
+                    raw_scores = {
+                        field: finite_float(
+                            news_item.get(field),
+                            f"{label}/{'/'.join(key)}/{field}",
+                        )
+                        for field in ("entailment", "contradiction", "no_neutral")
+                    }
+                    if any(
+                        not 0.0 <= value <= 3.0
+                        for value in raw_scores.values()
+                    ):
+                        raise ValueError(
+                            f"{label}: NLI value outside [0, 3] at {key}: "
+                            f"{raw_scores}"
+                        )
+                    index[key] = {
+                        "entailment": raw_scores["entailment"],
+                        "contradiction": raw_scores["contradiction"],
+                        "no_mention": raw_scores["no_neutral"],
+                    }
+    return index
+
+
+def inject_new_nli_scores(
+    source_data: dict, nli_data: dict, label: str
+) -> dict:
+    """Replace embedded legacy NLI scores with the new-study evaluations."""
+
+    nli_index = build_new_nli_index(nli_data, label)
+    used_keys: set[tuple[str, str, str, str]] = set()
+
+    for newspaper, llm_dict in source_data.items():
+        for llm_id, feature_dict in llm_dict.items():
+            for feature_id, news_list in feature_dict.items():
+                for news_item in news_list:
+                    news_id = str(news_item.get("id_news", "")).strip()
+                    key = (
+                        str(newspaper),
+                        str(llm_id),
+                        str(feature_id),
+                        news_id,
+                    )
+                    if key not in nli_index:
+                        raise ValueError(
+                            f"{label}: new NLI evaluation missing for {key}"
+                        )
+                    news_item["nli_llm"] = nli_index[key]
+                    used_keys.add(key)
+
+    extra_keys = set(nli_index) - used_keys
+    if (
+        len(extra_keys) != 1
+        or not all(key[-1].endswith("__dup1") for key in extra_keys)
+    ):
+        raise ValueError(
+            f"{label}: expected only the unmatched completion duplicate in "
+            f"new NLI; found {len(extra_keys)} extra keys: "
+            f"{sorted(extra_keys)[:3]}"
+        )
+    return {
+        "available_new_nli_rows": len(nli_index),
+        "matched_rows": len(used_keys),
+        "unmatched_completion_duplicates": [list(key) for key in sorted(extra_keys)],
+    }
 
 
 def softmax_three(values: tuple[float, float, float]) -> tuple[float, float, float]:
@@ -291,8 +401,14 @@ def duplicate_summary(news_items: list[dict]) -> dict:
     }
 
 
-def analyze_file(path: Path, label: str) -> dict:
-    news_items = flatten_news_items(load_json(path), label)
+def analyze_file(path: Path, nli_path: Path, label: str) -> dict:
+    source_data = load_json(path)
+    nli_join = inject_new_nli_scores(
+        source_data,
+        load_json(nli_path),
+        label,
+    )
+    news_items = flatten_news_items(source_data, label)
     target_key, target_label = TARGET_METRIC
     comparison_labels = [name for _, name in COMPARISON_METRICS]
     rho_values: list[float] = []
@@ -322,6 +438,8 @@ def analyze_file(path: Path, label: str) -> dict:
 
     return {
         "source_file": path.name,
+        "nli_source_file": str(nli_path),
+        "nli_join": nli_join,
         "unit_of_analysis": "news item",
         "num_news": len(news_items),
         "target_metric": target_label,
@@ -454,7 +572,10 @@ def write_heatmap(results: dict[str, dict]) -> None:
 
 
 def main() -> None:
-    results = {label: analyze_file(path, label) for label, path in INPUT_FILES.items()}
+    results = {
+        label: analyze_file(path, NEW_NLI_FILES[label], label)
+        for label, path in INPUT_FILES.items()
+    }
     write_json(OUTPUT_JSON, results)
     for label, analysis in results.items():
         for matrix_name, value_type in (

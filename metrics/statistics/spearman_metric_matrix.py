@@ -23,8 +23,8 @@ from typing import Sequence
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parents[1]
-DEFAULT_OUTPUT_DIR = SCRIPT_DIR / "spearman_results"
+PROJECT_ROOT = SCRIPT_DIR.parents[2]
+DEFAULT_OUTPUT_DIR = SCRIPT_DIR
 
 CONDITIONS = ("RAG", "NO_RAG")
 CONDITION_SCOPES = ("ALL", "RAG", "NO_RAG")
@@ -355,6 +355,18 @@ def xml_escape(text: object) -> str:
     )
 
 
+def metric_label_markup(metric_name: object) -> str:
+    """Return escaped SVG markup, rendering NLI class suffixes as subscripts."""
+
+    label = xml_escape(metric_name)
+    for suffix in ("C", "E"):
+        label = label.replace(
+            f"NLI_{suffix}",
+            f'NLI<tspan baseline-shift="sub" font-size="75%">{suffix}</tspan>',
+        )
+    return label
+
+
 def build_heatmap_markup(analysis: dict) -> tuple[str, int, int]:
     metric_names = analysis["metrics"]
     rho_matrix = analysis["rho"]
@@ -386,12 +398,12 @@ def build_heatmap_markup(analysis: dict) -> tuple[str, int, int]:
         center_y = top_margin + index * cell_size + cell_size / 2
         parts.append(
             f'<text x="{left_margin - 10}" y="{center_y + 5:.1f}" text-anchor="end" '
-            f'font-size="14">{xml_escape(metric_name)}</text>'
+            f'font-size="14">{metric_label_markup(metric_name)}</text>'
         )
         parts.append(
             f'<text x="{center_x:.1f}" y="{top_margin - 12}" text-anchor="start" '
             f'font-size="14" transform="rotate(-45 {center_x:.1f} {top_margin - 12})">'
-            f'{xml_escape(metric_name)}</text>'
+            f'{metric_label_markup(metric_name)}</text>'
         )
 
     for row_index, row in enumerate(rho_matrix):
@@ -480,13 +492,13 @@ def build_condition_comparison_markup(
             center_y = top_margin + index * cell_size + cell_size / 2
             parts.append(
                 f'<text x="{matrix_x - 10}" y="{center_y + 5:.1f}" '
-                f'text-anchor="end" font-size="14">{xml_escape(metric_name)}</text>'
+                f'text-anchor="end" font-size="14">{metric_label_markup(metric_name)}</text>'
             )
             parts.append(
                 f'<text x="{center_x:.1f}" y="{top_margin - 12}" '
                 f'text-anchor="start" font-size="14" '
                 f'transform="rotate(-45 {center_x:.1f} {top_margin - 12})">'
-                f'{xml_escape(metric_name)}</text>'
+                f'{metric_label_markup(metric_name)}</text>'
             )
 
         for row_index, row in enumerate(analysis["rho"]):

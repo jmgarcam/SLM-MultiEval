@@ -2,7 +2,7 @@
 
 The figure contains every D3 combination:
 4 metrics x 3 models x 3 temperatures x 2 conditions = 72 bars.
-Scores are represented as percentages, with 100% as the human baseline.
+Scores are normalized against the empirical human baseline, which is 100%.
 """
 
 from __future__ import annotations
@@ -22,11 +22,18 @@ from matplotlib.ticker import FuncFormatter
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-NLI_FILE = SCRIPT_DIR.parent / "nli_llm" / "nli_llm_results.json"
+NLI_FILE = (
+    SCRIPT_DIR.parent
+    / 'nli_llm'
+    / 'new_journal'
+    / 'nli_results'
+    / 'nli_llm_results.json'
+)
 FACT_RAG_FILE = SCRIPT_DIR.parent / "factual_llm" / "factual_llm_RAG_results.json"
 FACT_NO_RAG_FILE = (
     SCRIPT_DIR.parent / "factual_llm" / "factual_llm_NO_RAG_results.json"
 )
+FACT_REAL_FILE = SCRIPT_DIR.parent / "factual_llm" / "factual_llm_REAL_results.json"
 OUTPUT_DIR = SCRIPT_DIR / "D3"
 
 MODELS = (
@@ -78,14 +85,55 @@ def load_json(path: Path) -> dict:
 
 
 def process_d3_data() -> dict:
-    """Reproduce the D3 radar aggregation and convert scores to percentages."""
+    """Aggregate D3 scores and normalize them to the empirical human means."""
 
     nli = load_json(NLI_FILE)
     factual_sources = {
         "RAG": load_json(FACT_RAG_FILE),
         "NO_RAG": load_json(FACT_NO_RAG_FILE),
     }
+    factual_real = load_json(FACT_REAL_FILE)
     results = {}
+
+    if "REAL" not in nli:
+        raise KeyError(f"Missing condition REAL in {NLI_FILE}")
+
+    nli_real_blocks = [
+        models["REAL"]["1"]
+        for models in nli["REAL"].values()
+        if "REAL" in models and "1" in models["REAL"]
+    ]
+    if not nli_real_blocks:
+        raise ValueError(f"No empirical NLI baseline found in {NLI_FILE}")
+
+    factual_real_ratios = []
+    for models in factual_real.values():
+        if "REAL" not in models or "1" not in models["REAL"]:
+            continue
+        block = models["REAL"]["1"]
+        total = block["correct"] + block["incorrect"] + block["partially_correct"]
+        if total <= 0:
+            continue
+        factual_real_ratios.append(
+            (block["correct"] / total, 1.0 - block["incorrect"] / total)
+        )
+    if not factual_real_ratios:
+        raise ValueError(f"No empirical factual baseline found in {FACT_REAL_FILE}")
+
+    human_baselines = {
+        "NLI_E": fmean(
+            block["mean_entailment_softmax"] for block in nli_real_blocks
+        ),
+        "1 - NLI_C": 1.0
+        - fmean(block["mean_contradiction_softmax"] for block in nli_real_blocks),
+        "Correct": fmean(value[0] for value in factual_real_ratios),
+        "1 - Incorrect": fmean(value[1] for value in factual_real_ratios),
+    }
+    for metric_name, baseline in human_baselines.items():
+        if baseline <= 0:
+            raise ValueError(
+                f"The empirical human baseline for {metric_name} must be positive"
+            )
 
     for condition in CONDITIONS:
         if condition not in nli:
@@ -145,7 +193,9 @@ def process_d3_data() -> dict:
                     results[(metric_name, model_id, temperature_id, condition)] = {
                         "model": model_name,
                         "temperature": temperature_label,
-                        "relative_percent": 100.0 * value,
+                        "relative_percent": (
+                            100.0 * value / human_baselines[metric_name]
+                        ),
                     }
 
     expected = len(METRICS) * len(MODELS) * len(TEMPERATURES) * len(CONDITIONS)
@@ -301,8 +351,8 @@ def generate_bar_chart() -> tuple[Path, Path]:
         hspace=0.28,
     )
 
-    png_path = OUTPUT_DIR / "d3_barras.png"
-    pdf_path = OUTPUT_DIR / "d3_barras.pdf"
+    png_path = OUTPUT_DIR / 'd3_barras_v2.png'
+    pdf_path = OUTPUT_DIR / 'd3_barras_v2.pdf'
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     fig.savefig(pdf_path, format="pdf", bbox_inches="tight")
     plt.close(fig)

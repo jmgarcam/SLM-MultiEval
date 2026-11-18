@@ -42,12 +42,12 @@ METRICS = (
     ),
     core.MetricSpec("UER", "metrics/uer/uer_limited_news.json", "mean_uer"),
     core.MetricSpec(
-        "NLI-E",
+        "NLI_E",
         "metrics/nli_llm/nli_llm_results.json",
         "mean_entailment_softmax",
     ),
     core.MetricSpec(
-        "1 - NLI-C",
+        "1 - NLI_C",
         "metrics/nli_llm/nli_llm_results.json",
         "mean_contradiction_softmax",
     ),
@@ -72,6 +72,8 @@ FACTUAL_PATHS = {
     "NO_RAG": core.PROJECT_ROOT
     / "metrics/factual_llm/factual_llm_NO_RAG_results.json",
 }
+FACTUAL_FORCED_DENOMINATORS = {}
+FACTUAL_IMPUTED_LABEL_COUNTS = {}
 DIMENSIONS = {
     "D1": {
         "title": "Syntactic-Lexical Complexity",
@@ -151,15 +153,38 @@ def flatten_factual_metric(
                         )
                         for label in ("correct", "partially_correct", "incorrect")
                     }
-                    total = math.fsum(counts.values())
-                    if total <= 0.0:
+                    observed_total = math.fsum(counts.values())
+                    if observed_total <= 0.0:
                         raise ValueError(f"Factual label total must be positive at {location}")
+                    denominator_key = (
+                        condition,
+                        str(newspaper),
+                        str(model_id),
+                        str(temperature_id),
+                    )
+                    imputed_counts = FACTUAL_IMPUTED_LABEL_COUNTS.get(
+                        denominator_key,
+                        {},
+                    )
+                    counts = {
+                        label: value + imputed_counts.get(label, 0.0)
+                        for label, value in counts.items()
+                    }
                     key = (
                         str(newspaper),
                         str(model_id),
                         str(temperature_id),
                         condition,
                     )
+                    total = FACTUAL_FORCED_DENOMINATORS.get(
+                        denominator_key,
+                        observed_total,
+                    )
+                    if not math.isclose(math.fsum(counts.values()), total):
+                        raise ValueError(
+                            "Reported factual label counts must sum to the "
+                            f"denominator at {location}"
+                        )
                     ratio = counts[spec.value_key] / total
                     values[key] = 1.0 - ratio if invert else ratio
     if not values:
@@ -252,7 +277,7 @@ def correct_summary_metadata(
                     str(path.relative_to(core.PROJECT_ROOT))
                     for path in FACTUAL_PATHS.values()
                 ],
-                "definition": "correct / (correct + partially_correct + incorrect)",
+                "definition": "correct / reporting denominator",
                 "aggregation_n_per_cell": 50,
             }
         )
@@ -263,13 +288,43 @@ def correct_summary_metadata(
                     str(path.relative_to(core.PROJECT_ROOT))
                     for path in FACTUAL_PATHS.values()
                 ],
-                "definition": "1 - incorrect / (correct + partially_correct + incorrect)",
+                "definition": "1 - incorrect / reporting denominator",
                 "aggregation_n_per_cell": 50,
             }
         )
     summary["dimension"] = dimension
     summary["dimension_title"] = dimension_title
     summary["metric_selection"] = [spec.name for spec in core.METRICS]
+    summary["factual_forced_denominators"] = [
+        {
+            "condition": condition,
+            "newspaper": newspaper,
+            "model_id": model_id,
+            "temperature_id": temperature_id,
+            "denominator": denominator,
+        }
+        for (
+            condition,
+            newspaper,
+            model_id,
+            temperature_id,
+        ), denominator in FACTUAL_FORCED_DENOMINATORS.items()
+    ]
+    summary["factual_imputed_label_counts"] = [
+        {
+            "condition": condition,
+            "newspaper": newspaper,
+            "model_id": model_id,
+            "temperature_id": temperature_id,
+            "counts": counts,
+        }
+        for (
+            condition,
+            newspaper,
+            model_id,
+            temperature_id,
+        ), counts in FACTUAL_IMPUTED_LABEL_COUNTS.items()
+    ]
     with path.open("w", encoding="utf-8") as file_obj:
         json.dump(summary, file_obj, indent=2, ensure_ascii=False, allow_nan=False)
 
